@@ -109,15 +109,19 @@
     return t;
   }
 
-  function load(res) {
+  var LOADED = false;
+  function load(res, guardado) {
+    LOADED = true;
     DATA = res.rows.map(function (r) {
       var txt = r[0] + ' ' + r[1] + ' ' + r[2];
       return { r: r, n: norm(txt), c: compact(txt) };
     });
-    document.getElementById('sub').textContent = 'Buscador de reactivos · ' + DATA.length + ' reactivos · datos leídos el ' + res.actualizado;
+    document.getElementById('sub').textContent = 'Buscador de reactivos · ' + DATA.length + ' reactivos · datos del ' + res.actualizado + (guardado ? ' · actualizando…' : '');
     var cats = {}; DATA.forEach(function (d) { cats[d.r[7]] = 1; });
-    var sel = document.getElementById('cat');
+    var sel = document.getElementById('cat'), actual = sel.value;
+    while (sel.options.length > 1) sel.remove(1);
     Object.keys(cats).sort().forEach(function (c) { var o = document.createElement('option'); o.textContent = c; sel.appendChild(o); });
+    sel.value = actual;
     search();
   }
 
@@ -125,6 +129,7 @@
     var q = document.getElementById('q').value.trim();
     var lab = document.getElementById('lab').value, cat = document.getElementById('cat').value;
     var out = document.getElementById('out'), count = document.getElementById('count');
+    if (!LOADED) { count.textContent = ''; out.innerHTML = '<div class="loading">Cargando inventario…</div>'; return; }
     if (!q && !lab && !cat) { count.textContent = ''; out.innerHTML = ''; return; }
     var words = norm(q).split(/\s+/).filter(Boolean);
     var res = DATA.filter(function (d) {
@@ -152,11 +157,67 @@
   document.getElementById('cat').addEventListener('change', search);
 
   var API = 'https://script.google.com/macros/s/AKfycbzd0u9hGwlOWxvFpax4MNk5qxwiMw7r8cyLlFrZT0tt7KkL9A9VMW5uak-oVY8EWOZM/exec?formato=json';
-  fetch(API)
+  var FULL = false;
+  // 1) muestra al instante la última copia guardada en este dispositivo
+  var KEY = 'inventarioMolinaGroup';
+  try { var c = localStorage.getItem(KEY); if (c) load(JSON.parse(c), true); } catch (e) {}
+
+  // 2) copia rápida directa de la hoja (≈1 s). Puede omitir algunas "Piezas" escritas como texto;
+  //    la versión completa del paso 3 la reemplaza en cuanto llega.
+  var SHEET = 'https://docs.google.com/spreadsheets/d/1HjVBMK1kjFE-HdpbIdulIALYRczW6ZWsjiSCKN6d41I/gviz/tq?tqx=out:csv&headers=0&sheet=';
+  var CAT = { 'Organic Solids': 'A · Sólidos orgánicos', 'Inorganic Solids': 'B · Sólidos inorgánicos',
+              'Organic Liquids': 'C · Líquidos orgánicos', 'Solvents': 'D · Disolventes', 'Refrigerator': 'E · Refrigerador' };
+  function csv(t) {
+    var out = [], row = [], f = '', q = false;
+    for (var i = 0; i < t.length; i++) {
+      var ch = t[i];
+      if (q) { if (ch === '"') { if (t[i + 1] === '"') { f += '"'; i++; } else q = false; } else f += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === ',') { row.push(f); f = ''; }
+      else if (ch === '\n') { row.push(f); out.push(row); row = []; f = ''; }
+      else if (ch !== '\r') f += ch;
+    }
+    if (f || row.length) { row.push(f); out.push(row); }
+    return out;
+  }
+  function bloques(hoja, v) {
+    var rows = [];
+    for (var r = 0; r < v.length; r++) for (var c = 1; c < v[r].length; c++) {
+      if (String(v[r][c]).trim().toLowerCase() !== 'key') continue;
+      var et = r > 0 ? String(v[r - 1][c - 1] || '') : '';
+      var lab = /1-6/.test(et) ? '1-6' : (/2-1/.test(et) ? '2-1' : '');
+      for (var i = r + 1; i < v.length; i++) {
+        var f = v[i], g = function (k) { return k < f.length ? String(f[k] || '').trim() : ''; };
+        var n = g(c - 1), k = g(c);
+        if (!n || !k) continue;
+        rows.push([k, n, g(c + 4), g(c + 1), g(c + 2), g(c + 3), lab, CAT[hoja], g(c + 5)]);
+      }
+    }
+    return rows;
+  }
+  Promise.all(Object.keys(CAT).map(function (h) {
+    return fetch(SHEET + encodeURIComponent(h), { credentials: 'omit', cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (t) { return bloques(h, csv(t)); });
+  })).then(function (partes) {
+    if (FULL) return;
+    var d = new Date(), p = function (x) { return (x < 10 ? '0' : '') + x; };
+    load({ rows: [].concat.apply([], partes),
+           actualizado: p(d.getDate()) + '/' + p(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) }, true);
+  }).catch(function () {});
+
+  // 3) versión completa (Apps Script); reemplaza a las anteriores y se guarda en el dispositivo
+  fetch(API, { cache: 'no-store' })
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(load)
+    .then(function (res) {
+      FULL = true;
+      load(res, false);
+      try { localStorage.setItem(KEY, JSON.stringify(res)); } catch (e) {}
+    })
     .catch(function (e) {
-      document.getElementById('sub').textContent = '';
+      var sub = document.getElementById('sub');
+      if (LOADED) { sub.textContent = sub.textContent.replace(' · actualizando…', ''); return; }
+      sub.textContent = '';
       document.getElementById('out').innerHTML = '<div class="empty">No se pudo leer el inventario (' + esc(e.message || e) + '). Recarga la página en un momento.</div>';
     });
 </script>
