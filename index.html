@@ -61,7 +61,7 @@
       <h1>Inventario Molina Group</h1>
       <div class="sub" id="sub">Cargando inventario…</div>
     </div>
-    <a class="btn" id="excel" href="#" target="_blank" rel="noopener">Abrir el inventario completo</a>
+    <a class="btn" id="excel" href="https://docs.google.com/spreadsheets/d/1HjVBMK1kjFE-HdpbIdulIALYRczW6ZWsjiSCKN6d41I/htmlview" target="_blank" rel="noopener">Abrir el inventario completo</a>
   </header>
 
   <div class="search">
@@ -98,7 +98,6 @@
       var txt = r[0] + ' ' + r[1] + ' ' + r[2];
       return { r: r, n: norm(txt), c: compact(txt) };
     });
-    document.getElementById('excel').href = res.url;
     document.getElementById('sub').textContent = 'Buscador de reactivos · ' + DATA.length + ' reactivos · datos leídos el ' + res.actualizado;
     var cats = {}; DATA.forEach(function (d) { cats[d.r[7]] = 1; });
     var sel = document.getElementById('cat');
