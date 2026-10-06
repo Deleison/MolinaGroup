@@ -9,12 +9,14 @@
     --bg: #f6f7f9; --panel: #ffffff; --text: #17202a; --muted: #5d6b7a;
     --line: #dde3ea; --accent: #1f5fa8; --accent-text: #ffffff; --chip: #eef3fa;
     --hl: #fff1a8; --hl-text: #17202a;
+    --input: #ffffff; --input-line: #1f5fa8; --ph: #6b7886;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0f1419; --panel: #182029; --text: #e6edf3; --muted: #93a1b0;
       --line: #2a3542; --accent: #5aa2f0; --accent-text: #0f1419; --chip: #1f2b38;
       --hl: #6b5a12; --hl-text: #fff6d0;
+      --input: #263445; --input-line: #5aa2f0; --ph: #b4c0cc;
     }
   }
   * { box-sizing: border-box; }
@@ -27,9 +29,16 @@
   .btn { display: inline-block; padding: 9px 14px; border-radius: 8px; background: var(--accent);
          color: var(--accent-text); text-decoration: none; font-weight: 600; font-size: 14px; white-space: nowrap; }
   .search { margin-top: 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
-  #q { width: 100%; font-size: 18px; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line);
-       background: var(--bg); color: var(--text); outline: none; }
-  #q:focus { border-color: var(--accent); }
+  .lbl { display: block; font-weight: 700; font-size: 15px; margin: 0 0 8px 2px; }
+  .qwrap { position: relative; }
+  .ico { position: absolute; left: 14px; top: 50%; width: 22px; height: 22px; transform: translateY(-50%); color: var(--input-line); pointer-events: none; }
+  #q { width: 100%; font-size: 18px; padding: 14px 14px 14px 46px; border-radius: 10px; border: 2px solid var(--input-line);
+       background: var(--input); color: var(--text); outline: none; -webkit-appearance: none; appearance: none; }
+  #q::placeholder { color: var(--ph); opacity: 1; }
+  #q:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-line) 35%, transparent); }
+  .foot { margin-top: 28px; text-align: center; }
+  .btn2 { display: inline-block; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); color: var(--accent);
+          text-decoration: none; font-weight: 600; font-size: 14px; background: var(--panel); }
   .filters { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
   select { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 14px; }
   .count { color: var(--muted); font-size: 13px; margin: 14px 2px 8px; }
@@ -61,11 +70,14 @@
       <h1>Inventario Molina Group</h1>
       <div class="sub" id="sub">Cargando inventario…</div>
     </div>
-    <a class="btn" id="excel" href="https://docs.google.com/spreadsheets/d/1HjVBMK1kjFE-HdpbIdulIALYRczW6ZWsjiSCKN6d41I/htmlview" target="_blank" rel="noopener">Abrir el inventario completo</a>
   </header>
 
   <div class="search">
-    <input id="q" type="search" autocomplete="off" placeholder="Nombre, parte del nombre, CAS o clave (ej. bromo, 67-66-3, D-16)" autofocus>
+    <label for="q" class="lbl">Buscar reactivo</label>
+    <div class="qwrap">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <input id="q" type="search" autocomplete="off" placeholder="Nombre, CAS o clave" autofocus>
+    </div>
     <div class="filters">
       <select id="lab"><option value="">Ambos laboratorios</option><option>1-6</option><option>2-1</option></select>
       <select id="cat"><option value="">Todas las categorías</option></select>
@@ -74,6 +86,10 @@
 
   <div class="count" id="count"></div>
   <div id="out"><div class="loading">Cargando inventario…</div></div>
+
+  <div class="foot">
+    <a class="btn2" href="https://docs.google.com/spreadsheets/d/1HjVBMK1kjFE-HdpbIdulIALYRczW6ZWsjiSCKN6d41I/htmlview" target="_blank" rel="noopener">Ver el inventario completo</a>
+  </div>
 </div>
 
 <script>
@@ -109,7 +125,7 @@
     var q = document.getElementById('q').value.trim();
     var lab = document.getElementById('lab').value, cat = document.getElementById('cat').value;
     var out = document.getElementById('out'), count = document.getElementById('count');
-    if (!q && !lab && !cat) { count.textContent = ''; out.innerHTML = '<div class="empty">Escribe para buscar. No distingue mayúsculas ni acentos.</div>'; return; }
+    if (!q && !lab && !cat) { count.textContent = ''; out.innerHTML = ''; return; }
     var words = norm(q).split(/\s+/).filter(Boolean);
     var res = DATA.filter(function (d) {
       if (lab && d.r[6] !== lab) return false;
