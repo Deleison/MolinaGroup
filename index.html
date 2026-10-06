@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buscador de reactivos</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --text: #17202a; --muted: #5d6b7a;
+    --line: #dde3ea; --accent: #1f5fa8; --accent-text: #ffffff; --chip: #eef3fa;
+    --hl: #fff1a8; --hl-text: #17202a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1419; --panel: #182029; --text: #e6edf3; --muted: #93a1b0;
+      --line: #2a3542; --accent: #5aa2f0; --accent-text: #0f1419; --chip: #1f2b38;
+      --hl: #6b5a12; --hl-text: #fff6d0;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  h1 { font-size: 22px; margin: 0; }
+  .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .btn { display: inline-block; padding: 9px 14px; border-radius: 8px; background: var(--accent);
+         color: var(--accent-text); text-decoration: none; font-weight: 600; font-size: 14px; white-space: nowrap; }
+  .search { margin-top: 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  #q { width: 100%; font-size: 18px; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line);
+       background: var(--bg); color: var(--text); outline: none; }
+  #q:focus { border-color: var(--accent); }
+  .filters { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  select { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 14px; }
+  .count { color: var(--muted); font-size: 13px; margin: 14px 2px 8px; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: var(--chip); }
+  tr:last-child td { border-bottom: none; }
+  td.k { font-weight: 700; white-space: nowrap; }
+  td.cas { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--chip); font-size: 12px; white-space: nowrap; }
+  mark { background: var(--hl); color: var(--hl-text); border-radius: 3px; padding: 0 1px; }
+  .empty, .loading { padding: 28px; text-align: center; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+  @media (max-width: 720px) {
+    table, thead, tbody, tr, td { display: block; }
+    thead { display: none; }
+    table { border: none; background: none; }
+    tr { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; padding: 8px 4px; }
+    td { border: none; padding: 3px 10px; }
+    td[data-l]::before { content: attr(data-l) ": "; color: var(--muted); font-size: 12px; }
+    td.n { font-weight: 600; font-size: 16px; }
+    td[data-l]:empty { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Buscador de reactivos</h1>
+      <div class="sub" id="sub">Cargando inventario…</div>
+    </div>
+    <a class="btn" id="excel" href="#" target="_blank" rel="noopener">Abrir el inventario completo</a>
+  </header>
+
+  <div class="search">
+    <input id="q" type="search" autocomplete="off" placeholder="Nombre, parte del nombre, CAS o clave (ej. bromo, 67-66-3, D-16)" autofocus>
+    <div class="filters">
+      <select id="lab"><option value="">Ambos laboratorios</option><option>1-6</option><option>2-1</option></select>
+      <select id="cat"><option value="">Todas las categorías</option></select>
+    </div>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div id="out"><div class="loading">Cargando inventario…</div></div>
+</div>
+
+<script>
+  var DATA = [], MAX = 300;
+  var H = ['Clave', 'Reactivo', 'CAS', 'Cantidad', 'Marca', 'Piezas', 'Lab.', 'Categoría', 'Notas'];
+
+  function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function compact(s) { return norm(s).replace(/[^a-z0-9]/g, ''); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function hl(text, words) {
+    var t = esc(text);
+    words.forEach(function (w) {
+      if (w.length < 2) return;
+      var re = new RegExp('(' + w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'ig');
+      t = t.replace(re, '<mark>$1</mark>');
+    });
+    return t;
+  }
+
+  function load(res) {
+    DATA = res.rows.map(function (r) {
+      var txt = r[0] + ' ' + r[1] + ' ' + r[2];
+      return { r: r, n: norm(txt), c: compact(txt) };
+    });
+    document.getElementById('excel').href = res.url;
+    document.getElementById('sub').textContent = DATA.length + ' reactivos · datos leídos el ' + res.actualizado;
+    var cats = {}; DATA.forEach(function (d) { cats[d.r[7]] = 1; });
+    var sel = document.getElementById('cat');
+    Object.keys(cats).sort().forEach(function (c) { var o = document.createElement('option'); o.textContent = c; sel.appendChild(o); });
+    search();
+  }
+
+  function search() {
+    var q = document.getElementById('q').value.trim();
+    var lab = document.getElementById('lab').value, cat = document.getElementById('cat').value;
+    var out = document.getElementById('out'), count = document.getElementById('count');
+    if (!q && !lab && !cat) { count.textContent = ''; out.innerHTML = '<div class="empty">Escribe para buscar. No distingue mayúsculas ni acentos.</div>'; return; }
+    var words = norm(q).split(/\s+/).filter(Boolean);
+    var res = DATA.filter(function (d) {
+      if (lab && d.r[6] !== lab) return false;
+      if (cat && d.r[7] !== cat) return false;
+      return words.every(function (w) { return d.n.indexOf(w) >= 0 || (compact(w) && d.c.indexOf(compact(w)) >= 0); });
+    });
+    count.textContent = res.length + (res.length === 1 ? ' resultado' : ' resultados') + (res.length > MAX ? ' (se muestran los primeros ' + MAX + ')' : '');
+    if (!res.length) { out.innerHTML = '<div class="empty">Sin resultados. Prueba con menos letras o con el CAS.</div>'; return; }
+    var h = '<table><thead><tr>' + H.map(function (x) { return '<th>' + x + '</th>'; }).join('') + '</tr></thead><tbody>';
+    res.slice(0, MAX).forEach(function (d) {
+      var r = d.r;
+      h += '<tr><td class="k">' + hl(r[0], words) + '</td><td class="n">' + hl(r[1], words) + '</td>' +
+           '<td class="cas" data-l="CAS">' + hl(r[2], words) + '</td><td data-l="Cantidad">' + esc(r[3]) + '</td>' +
+           '<td data-l="Marca">' + esc(r[4]) + '</td><td data-l="Piezas">' + esc(r[5]) + '</td>' +
+           '<td data-l="Lab.">' + (r[6] ? '<span class="tag">' + esc(r[6]) + '</span>' : '') + '</td>' +
+           '<td data-l="Categoría">' + esc(r[7]) + '</td><td data-l="Notas">' + esc(r[8]) + '</td></tr>';
+    });
+    out.innerHTML = h + '</tbody></table>';
+  }
+
+  var timer;
+  document.getElementById('q').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 120); });
+  document.getElementById('lab').addEventListener('change', search);
+  document.getElementById('cat').addEventListener('change', search);
+
+  var API = 'https://script.google.com/macros/s/AKfycbzd0u9hGwlOWxvFpax4MNk5qxwiMw7r8cyLlFrZT0tt7KkL9A9VMW5uak-oVY8EWOZM/exec?formato=json';
+  fetch(API)
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(load)
+    .catch(function (e) {
+      document.getElementById('sub').textContent = '';
+      document.getElementById('out').innerHTML = '<div class="empty">No se pudo leer el inventario (' + esc(e.message || e) + '). Recarga la página en un momento.</div>';
+    });
+</script>
+</body>
+</html>
