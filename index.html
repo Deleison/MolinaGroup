@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Buscador de reactivos</title>
+<title>Inventario · Molina Group</title>
 <style>
   :root {
     --bg: #f6f7f9; --panel: #ffffff; --text: #17202a; --muted: #5d6b7a;
@@ -58,7 +58,7 @@
 <div class="wrap">
   <header>
     <div>
-      <h1>Buscador de reactivos</h1>
+      <h1>Inventario Molina Group</h1>
       <div class="sub" id="sub">Cargando inventario…</div>
     </div>
     <a class="btn" id="excel" href="#" target="_blank" rel="noopener">Abrir el inventario completo</a>
@@ -99,7 +99,7 @@
       return { r: r, n: norm(txt), c: compact(txt) };
     });
     document.getElementById('excel').href = res.url;
-    document.getElementById('sub').textContent = DATA.length + ' reactivos · datos leídos el ' + res.actualizado;
+    document.getElementById('sub').textContent = 'Buscador de reactivos · ' + DATA.length + ' reactivos · datos leídos el ' + res.actualizado;
     var cats = {}; DATA.forEach(function (d) { cats[d.r[7]] = 1; });
     var sel = document.getElementById('cat');
     Object.keys(cats).sort().forEach(function (c) { var o = document.createElement('option'); o.textContent = c; sel.appendChild(o); });
