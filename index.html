@@ -4,17 +4,22 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Inventario · Molina Group</title>
+<meta name="theme-color" content="#1f3a5f">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-title" content="Inventario MG">
 <style>
   :root {
     --bg: #f6f7f9; --panel: #ffffff; --text: #17202a; --muted: #5d6b7a;
-    --line: #dde3ea; --accent: #1f5fa8; --accent-text: #ffffff; --chip: #eef3fa;
+    --line: #dde3ea; --accent: #1f5fa8; --chip: #eef3fa;
     --hl: #fff1a8; --hl-text: #17202a;
     --input: #ffffff; --input-line: #1f5fa8; --ph: #6b7886;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #0f1419; --panel: #182029; --text: #e6edf3; --muted: #93a1b0;
-      --line: #2a3542; --accent: #5aa2f0; --accent-text: #0f1419; --chip: #1f2b38;
+      --line: #2a3542; --accent: #5aa2f0; --chip: #22303e;
       --hl: #6b5a12; --hl-text: #fff6d0;
       --input: #263445; --input-line: #5aa2f0; --ph: #b4c0cc;
     }
@@ -22,13 +27,10 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
          font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
-  header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; }
   h1 { font-size: 22px; margin: 0; }
   .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
-  .btn { display: inline-block; padding: 9px 14px; border-radius: 8px; background: var(--accent);
-         color: var(--accent-text); text-decoration: none; font-weight: 600; font-size: 14px; white-space: nowrap; }
-  .search { margin-top: 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  .search { margin-top: 18px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
   .lbl { display: block; font-weight: 700; font-size: 15px; margin: 0 0 8px 2px; }
   .qwrap { position: relative; }
   .ico { position: absolute; left: 14px; top: 50%; width: 22px; height: 22px; transform: translateY(-50%); color: var(--input-line); pointer-events: none; }
@@ -36,41 +38,40 @@
        background: var(--input); color: var(--text); outline: none; -webkit-appearance: none; appearance: none; }
   #q::placeholder { color: var(--ph); opacity: 1; }
   #q:focus { box-shadow: 0 0 0 3px color-mix(in srgb, var(--input-line) 35%, transparent); }
+  .filters { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+  select { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 14px; }
+  .bar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 14px 2px 8px; min-height: 22px; }
+  .count { color: var(--muted); font-size: 13px; }
+  .share { background: none; border: 1px solid var(--line); color: var(--accent); border-radius: 8px; padding: 4px 10px; font-size: 13px; cursor: pointer; }
+  .share[hidden] { display: none; }
+
+  /* resultados */
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .item { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .top { display: flex; align-items: baseline; gap: 10px; }
+  .k { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .n { font-weight: 600; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+  .labs { display: flex; gap: 4px; flex-shrink: 0; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--chip); font-size: 12px; white-space: nowrap; }
+  .meta { color: var(--muted); font-size: 13px; margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+  .meta b { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .ficha { color: var(--accent); text-decoration: none; font-weight: 600; white-space: nowrap; }
+  .ficha:hover { text-decoration: underline; }
+  .pres { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .p { font-size: 13px; border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; }
+  .p .lab { color: var(--muted); }
+  .note { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  mark { background: var(--hl); color: var(--hl-text); border-radius: 3px; padding: 0 1px; }
+  .empty, .loading { padding: 28px; text-align: center; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
   .foot { margin-top: 28px; text-align: center; }
   .btn2 { display: inline-block; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); color: var(--accent);
           text-decoration: none; font-weight: 600; font-size: 14px; background: var(--panel); }
-  .filters { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
-  select { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 14px; }
-  .count { color: var(--muted); font-size: 13px; margin: 14px 2px 8px; }
-  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
-  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  th { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); background: var(--chip); }
-  tr:last-child td { border-bottom: none; }
-  td.k { font-weight: 700; white-space: nowrap; }
-  td.cas { font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--chip); font-size: 12px; white-space: nowrap; }
-  mark { background: var(--hl); color: var(--hl-text); border-radius: 3px; padding: 0 1px; }
-  .empty, .loading { padding: 28px; text-align: center; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
-  @media (max-width: 720px) {
-    table, thead, tbody, tr, td { display: block; }
-    thead { display: none; }
-    table { border: none; background: none; }
-    tr { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; padding: 8px 4px; }
-    td { border: none; padding: 3px 10px; }
-    td[data-l]::before { content: attr(data-l) ": "; color: var(--muted); font-size: 12px; }
-    td.n { font-weight: 600; font-size: 16px; }
-    td[data-l]:empty { display: none; }
-  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <div>
-      <h1>Inventario Molina Group</h1>
-      <div class="sub" id="sub">Cargando inventario…</div>
-    </div>
-  </header>
+  <h1>Inventario Molina Group</h1>
+  <div class="sub" id="sub">Cargando inventario…</div>
 
   <div class="search">
     <label for="q" class="lbl">Buscar reactivo</label>
@@ -84,7 +85,7 @@
     </div>
   </div>
 
-  <div class="count" id="count"></div>
+  <div class="bar"><span class="count" id="count"></span><button class="share" id="share" hidden>Copiar enlace de esta búsqueda</button></div>
   <div id="out"><div class="loading">Cargando inventario…</div></div>
 
   <div class="foot">
@@ -93,8 +94,8 @@
 </div>
 
 <script>
-  var DATA = [], MAX = 300;
-  var H = ['Clave', 'Reactivo', 'CAS', 'Cantidad', 'Marca', 'Piezas', 'Lab.', 'Categoría', 'Notas'];
+  var DATA = [], MAX = 200, LOADED = false, FULL = false;
+  var CASRE = /^\d{2,7}-\d{2}-\d$/;
 
   function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
   function compact(s) { return norm(s).replace(/[^a-z0-9]/g, ''); }
@@ -108,56 +109,121 @@
     });
     return t;
   }
+  function keyNum(k) { var m = /^([A-Z])-(\d+)/i.exec(k); return m ? m[1].toUpperCase().charCodeAt(0) * 100000 + Number(m[2]) : 9e9; }
 
-  var LOADED = false;
-  function load(res, guardado) {
-    LOADED = true;
-    DATA = res.rows.map(function (r) {
-      var txt = r[0] + ' ' + r[1] + ' ' + r[2];
-      return { r: r, n: norm(txt), c: compact(txt) };
+  // Agrupa frascos del mismo reactivo (misma clave y mismo nombre)
+  function agrupar(rows) {
+    var map = {}, out = [];
+    rows.forEach(function (r) {
+      var id = r[0].toUpperCase() + '|' + compact(r[1]);
+      var g = map[id];
+      if (!g) {
+        g = map[id] = { k: r[0], n: r[1], cas: r[2], cat: r[7], labs: [], pres: [], notas: [] };
+        out.push(g);
+      }
+      if (!g.cas && r[2]) g.cas = r[2];
+      if (r[6] && g.labs.indexOf(r[6]) < 0) g.labs.push(r[6]);
+      g.pres.push({ q: r[3], m: r[4], p: r[5], lab: r[6] });
+      if (r[8] && g.notas.indexOf(r[8]) < 0) g.notas.push(r[8]);
     });
-    document.getElementById('sub').textContent = 'Buscador de reactivos · ' + DATA.length + ' reactivos · datos del ' + res.actualizado + (guardado ? ' · actualizando…' : '');
-    var cats = {}; DATA.forEach(function (d) { cats[d.r[7]] = 1; });
-    var sel = document.getElementById('cat'), actual = sel.value;
+    out.forEach(function (g) {
+      var t = g.k + ' ' + g.n + ' ' + g.cas;
+      g.nn = norm(g.n); g.t = norm(t); g.c = compact(t); g.kc = compact(g.k); g.casc = compact(g.cas);
+    });
+    return out;
+  }
+
+  function load(res, provisional) {
+    LOADED = true;
+    DATA = agrupar(res.rows);
+    var frascos = res.rows.length;
+    document.getElementById('sub').textContent = DATA.length + ' reactivos · ' + frascos + ' frascos · datos del ' + res.actualizado + (provisional ? ' · actualizando…' : '');
+    var cats = {}; DATA.forEach(function (d) { cats[d.cat] = 1; });
+    var sel = document.getElementById('cat'), actual = sel.value || PARAMS.cat || '';
     while (sel.options.length > 1) sel.remove(1);
     Object.keys(cats).sort().forEach(function (c) { var o = document.createElement('option'); o.textContent = c; sel.appendChild(o); });
     sel.value = actual;
     search();
   }
 
+  function puntaje(d, q, qc, words) {
+    if (qc && d.kc === qc) return 0;                 // clave exacta
+    if (qc && d.casc === qc) return 1;               // CAS exacto
+    if (d.nn.indexOf(q) === 0) return 2;             // el nombre empieza con lo buscado
+    if ((' ' + d.nn.replace(/[^a-z0-9]+/g, ' ')).indexOf(' ' + words[0]) >= 0) return 3; // alguna palabra empieza así
+    return 4;
+  }
+
+  function ficha(d) {
+    var url = CASRE.test(d.cas)
+      ? 'https://pubchem.ncbi.nlm.nih.gov/compound/' + encodeURIComponent(d.cas) + '#section=Safety-and-Hazards'
+      : 'https://pubchem.ncbi.nlm.nih.gov/#query=' + encodeURIComponent(d.n);
+    return '<a class="ficha" href="' + url + '" target="_blank" rel="noopener">Ficha de seguridad ↗</a>';
+  }
+
+  function actualizarURL(q, lab, cat) {
+    var p = new URLSearchParams();
+    if (q) p.set('q', q); if (lab) p.set('lab', lab); if (cat) p.set('cat', cat);
+    var s = p.toString();
+    try { history.replaceState(null, '', location.pathname + (s ? '?' + s : '')); } catch (e) {}
+    document.getElementById('share').hidden = !s;
+  }
+
   function search() {
-    var q = document.getElementById('q').value.trim();
+    var qraw = document.getElementById('q').value.trim();
     var lab = document.getElementById('lab').value, cat = document.getElementById('cat').value;
     var out = document.getElementById('out'), count = document.getElementById('count');
+    actualizarURL(qraw, lab, cat);
     if (!LOADED) { count.textContent = ''; out.innerHTML = '<div class="loading">Cargando inventario…</div>'; return; }
-    if (!q && !lab && !cat) { count.textContent = ''; out.innerHTML = ''; return; }
-    var words = norm(q).split(/\s+/).filter(Boolean);
+    if (!qraw && !lab && !cat) { count.textContent = ''; out.innerHTML = ''; return; }
+    var q = norm(qraw), qc = compact(qraw);
+    var words = q.split(/\s+/).filter(Boolean);
     var res = DATA.filter(function (d) {
-      if (lab && d.r[6] !== lab) return false;
-      if (cat && d.r[7] !== cat) return false;
-      return words.every(function (w) { return d.n.indexOf(w) >= 0 || (compact(w) && d.c.indexOf(compact(w)) >= 0); });
+      if (lab && d.labs.indexOf(lab) < 0) return false;
+      if (cat && d.cat !== cat) return false;
+      return words.every(function (w) { var wc = compact(w); return d.t.indexOf(w) >= 0 || (wc && d.c.indexOf(wc) >= 0); });
     });
-    count.textContent = res.length + (res.length === 1 ? ' resultado' : ' resultados') + (res.length > MAX ? ' (se muestran los primeros ' + MAX + ')' : '');
+    if (words.length) res.forEach(function (d) { d.s = puntaje(d, q, qc, words); });
+    res.sort(function (a, b) { return (words.length ? a.s - b.s : 0) || keyNum(a.k) - keyNum(b.k); });
+    count.textContent = res.length + (res.length === 1 ? ' reactivo' : ' reactivos') + (res.length > MAX ? ' (se muestran los primeros ' + MAX + ')' : '');
     if (!res.length) { out.innerHTML = '<div class="empty">Sin resultados. Prueba con menos letras o con el CAS.</div>'; return; }
-    var h = '<table><thead><tr>' + H.map(function (x) { return '<th>' + x + '</th>'; }).join('') + '</tr></thead><tbody>';
+    var h = '<div class="list">';
     res.slice(0, MAX).forEach(function (d) {
-      var r = d.r;
-      h += '<tr><td class="k">' + hl(r[0], words) + '</td><td class="n">' + hl(r[1], words) + '</td>' +
-           '<td class="cas" data-l="CAS">' + hl(r[2], words) + '</td><td data-l="Cantidad">' + esc(r[3]) + '</td>' +
-           '<td data-l="Marca">' + esc(r[4]) + '</td><td data-l="Piezas">' + esc(r[5]) + '</td>' +
-           '<td data-l="Lab.">' + (r[6] ? '<span class="tag">' + esc(r[6]) + '</span>' : '') + '</td>' +
-           '<td data-l="Categoría">' + esc(r[7]) + '</td><td data-l="Notas">' + esc(r[8]) + '</td></tr>';
+      var varios = d.labs.length > 1;
+      h += '<div class="item"><div class="top"><span class="k">' + hl(d.k, words) + '</span><span class="n">' + hl(d.n, words) + '</span>' +
+           '<span class="labs">' + d.labs.map(function (l) { return '<span class="tag">' + esc(l) + '</span>'; }).join('') + '</span></div>' +
+           '<div class="meta">' + (d.cas ? '<span>CAS <b>' + hl(d.cas, words) + '</b></span>' : '') + '<span>' + esc(d.cat) + '</span>' + ficha(d) + '</div>' +
+           '<div class="pres">' + d.pres.map(function (p) {
+             var txt = [p.q, p.m].filter(Boolean).map(esc).join(' · ');
+             if (p.p) txt += ' · ' + esc(p.p) + (/^\d+$/.test(p.p) ? (p.p === '1' ? ' pza' : ' pzas') : '');
+             if (varios && p.lab) txt += ' <span class="lab">(' + esc(p.lab) + ')</span>';
+             return '<span class="p">' + (txt || '—') + '</span>';
+           }).join('') + '</div>' +
+           (d.notas.length ? '<div class="note">' + esc(d.notas.join(' · ')) + '</div>' : '') + '</div>';
     });
-    out.innerHTML = h + '</tbody></table>';
+    out.innerHTML = h + '</div>';
   }
+
+  // Parámetros del enlace (?q=...&lab=...&cat=...)
+  var PARAMS = {};
+  try { var sp = new URLSearchParams(location.search); PARAMS = { q: sp.get('q') || '', lab: sp.get('lab') || '', cat: sp.get('cat') || '' }; } catch (e) {}
+  document.getElementById('q').value = PARAMS.q || '';
+  document.getElementById('lab').value = PARAMS.lab || '';
 
   var timer;
   document.getElementById('q').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 120); });
   document.getElementById('lab').addEventListener('change', search);
   document.getElementById('cat').addEventListener('change', search);
+  document.getElementById('share').addEventListener('click', function () {
+    var b = this, url = location.href;
+    var ok = function () { b.textContent = '¡Enlace copiado!'; setTimeout(function () { b.textContent = 'Copiar enlace de esta búsqueda'; }, 1800); };
+    if (navigator.share && /Mobi|Android|iPhone/i.test(navigator.userAgent)) { navigator.share({ title: 'Inventario Molina Group', url: url }).catch(function () {}); return; }
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(ok, function () { prompt('Copia este enlace:', url); });
+    else prompt('Copia este enlace:', url);
+  });
 
   var API = 'https://script.google.com/macros/s/AKfycbzd0u9hGwlOWxvFpax4MNk5qxwiMw7r8cyLlFrZT0tt7KkL9A9VMW5uak-oVY8EWOZM/exec?formato=json';
-  var FULL = false;
+
   // 1) muestra al instante la última copia guardada en este dispositivo
   var KEY = 'inventarioMolinaGroup';
   try { var c = localStorage.getItem(KEY); if (c) load(JSON.parse(c), true); } catch (e) {}
