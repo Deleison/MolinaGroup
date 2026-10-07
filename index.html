@@ -47,13 +47,20 @@
 
   /* resultados */
   .list { display: flex; flex-direction: column; gap: 8px; }
-  .item { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .item { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--c, var(--line)); border-radius: 10px; padding: 10px 12px; }
+  .cat { display: inline-flex; align-items: center; gap: 6px; color: var(--c); font-weight: 600; }
+  .cat::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
+  .cA { --c: #2e8b57; } .cB { --c: #7b5cc4; } .cC { --c: #1f78c8; } .cD { --c: #c46a12; } .cE { --c: #0f8f99; }
+  @media (prefers-color-scheme: dark) {
+    .cA { --c: #5cc98a; } .cB { --c: #ad94f0; } .cC { --c: #6cb2f2; } .cD { --c: #f0a24e; } .cE { --c: #4fd1d9; }
+  }
   .top { display: flex; align-items: baseline; gap: 10px; }
   .k { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .n { font-weight: 600; flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .labs { display: flex; gap: 4px; flex-shrink: 0; }
   .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--chip); font-size: 12px; white-space: nowrap; }
   .meta { color: var(--muted); font-size: 13px; margin-top: 3px; display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: center; }
+  .meta .abr { font-weight: 600; color: var(--text); }
   .meta b { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
   .ficha { color: var(--accent); text-decoration: none; font-weight: 600; white-space: nowrap; }
   .ficha:hover { text-decoration: underline; }
@@ -77,7 +84,7 @@
     <label for="q" class="lbl">Buscar reactivo</label>
     <div class="qwrap">
       <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
-      <input id="q" type="search" autocomplete="off" placeholder="Nombre, CAS o clave" autofocus>
+      <input id="q" type="search" autocomplete="off" placeholder="Nombre, abreviatura, CAS o clave" autofocus>
     </div>
     <div class="filters">
       <select id="lab"><option value="">Ambos laboratorios</option><option>1-6</option><option>2-1</option></select>
@@ -111,6 +118,217 @@
   }
   function keyNum(k) { var m = /^([A-Z])-(\d+)/i.exec(k); return m ? m[1].toUpperCase().charCodeAt(0) * 100000 + Number(m[2]) : 9e9; }
 
+  // ===== Sinónimos: abreviaturas, fórmulas y nombres en español/inglés =====
+  // Cada entrada: [ abreviaturas y fórmulas , nombres equivalentes (cualquier idioma) ]
+  // Si el nombre de un reactivo contiene alguno de los nombres, se le agregan todos los demás como "alias" de búsqueda.
+  var SIN = [
+    [['DBU'], ['1,8-diazabicyclo[5.4.0]undec-7-ene', 'diazabicycloundecene']],
+    [['DBN'], ['1,5-diazabicyclo[4.3.0]non-5-ene']],
+    [['DABCO'], ['1,4-diazabicyclo[2.2.2]octane', 'diazabiciclo[2.2.2]octane', 'diazabiciclo[2.2.2]octano']],
+    [['DMAP'], ['4-dimethylaminopyridine', '4-(dimethylamino)pyridine', 'dimetilaminopiridina']],
+    [['TEA', 'Et3N'], ['triethylamine', 'trietilamina']],
+    [['DIPEA', 'DIEA', 'Hunig'], ['diisopropylethylamine', 'diisopropiletilamina', 'n,n-diisopropylethylamine']],
+    [['DIPA'], ['diisopropylamine', 'diisopropilamina']],
+    [['TMEDA'], ['tetramethylethylenediamine', 'tretramethylethylenediamine']],
+    [['DMF'], ['dimethylformamide', "n,n'-dimethylformamide", 'dimetilformamida']],
+    [['DMA', 'DMAc'], ['dimethylacetamide', 'dimetilacetamida']],
+    [['DMSO'], ['dimethylsulfoxide', 'dimethyl sulfoxide', 'dimetilsulfoxido']],
+    [['DMPU'], ['1,3-dimethyl-3,4,5,6-tetrahydro-2(1h)-pyrimidinone']],
+    [['NMP'], ['1-methyl-2-pyrrolidinone', 'n-methyl-2-pyrrolidone', 'n-metil-2-pirrolidona']],
+    [['THF'], ['tetrahydrofuran', 'tetrahidrofurano']],
+    [['2-MeTHF'], ['2-methyltetrahydrofuran']],
+    [['DCM', 'CH2Cl2'], ['dichloromethane', 'dichlorometane', 'diclorometano', 'cloruro de metileno', 'methylene chloride']],
+    [['DCE'], ['1,2-dichloroethane', '1,2-dicloroetano']],
+    [['CHCl3'], ['chloroform', 'cloroformo']],
+    [['CCl4'], ['carbon tetrachloride', 'tetracloruro de carbono']],
+    [['CS2'], ['carbon disulfide', 'disulfuro de carbono']],
+    [['MeOH'], ['methanol', 'metanol']],
+    [['EtOH'], ['ethanol', 'etanol']],
+    [['IPA', 'iPrOH'], ['2-propanol', 'isopropanol', 'isopropyl alcohol', 'alcohol isopropilico']],
+    [['nPrOH'], ['1-propanol', 'propyl alcohol', 'propilic alcohol', 'alcohol propilico']],
+    [['nBuOH'], ['1-butanol', 'n-butanol']],
+    [['tBuOH'], ['tert-butanol', 'terbutanol']],
+    [['MeCN', 'ACN'], ['acetonitrile', 'acetonitrilo']],
+    [['AcOEt', 'EtOAc'], ['ethyl acetate', 'acetato de etilo']],
+    [['Et2O'], ['diethyl ether', 'eter dietilico', 'eter etilico']],
+    [['iPr2O'], ['isopropyl ether', 'diisopropyl ether', 'eter isopropilico']],
+    [['DME'], ['ethylene glycol dimethyl ether', '1,2-dimethoxyethane', 'dimetoxietano']],
+    [['Diglyme'], ['bis(2-methoxyethyl) ether', 'bis(2-methoxyethyl)ether', 'diglime']],
+    [[], ['acetone', 'acetona']],
+    [[], ['hexane', 'n-hexane', 'hexano']],
+    [[], ['heptane', 'n-heptane', 'heptano']],
+    [[], ['cyclohexane', 'ciclohexano']],
+    [[], ['toluene', 'tolueno']],
+    [[], ['benzene', 'benceno']],
+    [[], ['xylene', 'xileno', 'xilol']],
+    [[], ['1,4-dioxane', 'dioxane', 'dioxano']],
+    [[], ['pyridine', 'piridina']],
+    [[], ['water', 'agua']],
+    [[], ['glycerol', 'glycerin', 'glicerina', 'glicerol']],
+    [[], ['petroleum ether', 'petroleum benzine', 'eter de petroleo']],
+    [['AcOH'], ['acetic acid', 'acido acetico']],
+    [['Ac2O'], ['acetic anhydride', 'anhidrido acetico']],
+    [['TFA'], ['trifluoroacetic acid', 'acido trifluoroacetico']],
+    [['TFAA'], ['trifluoroacetic anhydride', 'anhidrido trifluoroacetico']],
+    [['TfOH'], ['trifluoromethanesulfonic acid', 'triflic acid', 'acido triflico']],
+    [['Tf2O'], ['triflic anhydride', 'trifluoromethanesulfonic anhydride', 'anhidrido triflico']],
+    [['TsOH', 'PTSA', 'pTSA'], ['p-toluenesulfonic acid', 'acido p-toluensulfonico']],
+    [['TsCl'], ['p-toluenesulfonyl chloride', 'tosyl chloride', 'cloruro de tosilo']],
+    [['TsN3'], ['p-toluenesulfonyl azide', 'tosyl azide']],
+    [['MsCl'], ['methanesulfonyl chloride', 'mesyl chloride', 'cloruro de mesilo']],
+    [['TosMIC'], ['tosylmethyl isocyanide', 'p-toluenesulfonylmethyl isocyanide']],
+    [['HCl'], ['hydrochloric acid', 'acido clorhidrico', 'hydrogen chloride']],
+    [['HBr'], ['hydrobromic acid', 'acido bromhidrico']],
+    [['H2SO4'], ['sulfuric acid', 'acido sulfurico']],
+    [['HNO3'], ['nitric acid', 'acido nitrico']],
+    [['H3PO4'], ['phosphoric acid', 'acido fosforico']],
+    [['HBF4'], ['tetrafluoroboric acid', 'acido tetrafluorobórico']],
+    [['NH4OH'], ['ammonium hydroxide', 'hidroxido de amonio']],
+    [['H2O2'], ['hydrogen peroxide', 'peroxido de hidrogeno', 'agua oxigenada']],
+    [['NaOH'], ['sodium hydroxide', 'hidroxido de sodio', 'sosa']],
+    [['KOH'], ['potassium hydroxide', 'hidroxido de potasio', 'potasa']],
+    [['LiOH'], ['lithium hydroxide', 'hidroxido de litio']],
+    [['NaHCO3'], ['sodium bicarbonate', 'bicarbonato de sodio']],
+    [['K2CO3'], ['potassium carbonate', 'carbonato de potasio']],
+    [['Cs2CO3'], ['cesium carbonate', 'carbonato de cesio']],
+    [['Li2CO3'], ['lithium carbonate', 'carbonato de litio']],
+    [['Na2SO4'], ['sodium sulfate', 'sulfato de sodio']],
+    [['MgSO4'], ['magnesium sulfate', 'sulfato de magnesio']],
+    [['CuSO4'], ['copper(ii) sulfate', 'cupric sulfate', 'sulfato de cobre']],
+    [['NH4Cl'], ['ammonium chloride', 'cloruro de amonio']],
+    [['NaCl'], ['sodium chloride', 'cloruro de sodio']],
+    [['KCl'], ['potassium chloride', 'cloruro de potasio']],
+    [['LiCl'], ['lithium chloride', 'cloruro de litio']],
+    [['LiBr'], ['lithium bromide', 'bromuro de litio']],
+    [['KBr'], ['potassium bromide', 'bromuro de potasio']],
+    [['KI'], ['potassium iodide', 'yoduro de potasio']],
+    [['CuI'], ['copper iodide', 'copper(i) iodide', 'yoduro de cobre']],
+    [['CuBr'], ['copper(i) bromide', 'bromuro de cobre']],
+    [['CuCN'], ['copper(i) cyanide', 'cianuro de cobre']],
+    [['NaN3'], ['sodium azide', 'azida de sodio']],
+    [['KCN'], ['potassium cyanide', 'cianuro de potasio']],
+    [['CsF'], ['cesium fluoride', 'fluoruro de cesio']],
+    [['NaF'], ['sodium fluoride', 'fluoruro de sodio']],
+    [['NaH'], ['sodium hydride', 'hidruro de sodio']],
+    [['CaH2'], ['calcium hydride', 'hidruro de calcio']],
+    [['NaBH4'], ['sodium borohydride', 'borohidruro de sodio', 'natriumborhydrid']],
+    [['NaBH3CN'], ['sodium cyanoborohydride', 'cianoborohidruro de sodio']],
+    [['LAH', 'LiAlH4'], ['lithium aluminum hydride', 'hidruro de litio y aluminio']],
+    [['DIBAL', 'DIBAL-H'], ['diisobutylaluminum hydride', 'diisobutylaluminium hydride']],
+    [['BH3·THF'], ['borane tetrahydrofuran complex', 'borane-tetrahydrofuran']],
+    [['nBuLi', 'n-BuLi'], ['n-butyllithium']],
+    [['tBuLi', 't-BuLi'], ['tert-butyllithium']],
+    [['MeLi'], ['methyllithium', 'methyllitum']],
+    [['LiHMDS', 'LHMDS'], ['lithium bis(trimethylsilyl)amide', 'litium bis(trumethylsilyl)amide']],
+    [['NaHMDS'], ['sodium bis(trimethylsilyl)amide']],
+    [['KOtBu', 'tBuOK'], ['potassium tert-butoxide', 'terbutoxido de potasio']],
+    [['NBS'], ['n-bromosuccinimide']],
+    [['NCS'], ['n-chlorosuccinimide']],
+    [['NIS'], ['n-iodosuccinimide']],
+    [['AIBN'], ['azobis(methylpropionitrile)', 'azobisisobutyronitrile']],
+    [['TEMPO'], ['tetramethylpiperidine 1-oxyl', 'tempo free radical']],
+    [['DDQ'], ['2,3-dichloro-5,6-dicyano-p-benzoquinone']],
+    [['mCPBA', 'MCPBA'], ['3-chloroperoxybenzoic acid', 'chloroperbenzoic', 'chloropetoxy benzoic']],
+    [['CAN'], ['cerium ammonium nitrate', 'ceric ammonium nitrate', 'cerium amonium nitrate']],
+    [['Oxone'], ['potassium peroxymonosulfate']],
+    [['PIDA', 'DIB'], ['(diacetoxyiodo)benzene', 'iodobenzene diacetate']],
+    [['DCC'], ['dicyclohexylcarbodiimide', 'dicyclohexylocarbodiimide']],
+    [['DIC'], ['diisopropylcarbodiimide']],
+    [['HOBt'], ['1-hydroxybenzotriazole']],
+    [['HATU'], ['triazolo[4,5-b]pyridinium-3-oxid hexafluorophosphate', 'triazolo[4,5-b]pyridinium 3-oxide hexafluorophosphate']],
+    [['HBTU'], ['tetramethyluronium hexafluorophosphate']],
+    [['BOP'], ['tris(dimethylamino)phosphonium hexafluorophosphate']],
+    [['T3P'], ['propylphosphonic anhydride']],
+    [['Boc2O'], ['di-tert-butyl dicarbonate']],
+    [['TMSCl'], ['chlorotrimethylsilane', 'trimethylsilyl chloride']],
+    [['TMSN3'], ['azido trimethylsilane', 'azidotrimethylsilane', 'trimethylsilyl azide']],
+    [['TMSA'], ['ethynyltrimethylsilane', 'trimethylsilylacetylene']],
+    [['TMS'], ['tetramethyl silane', 'tetramethylsilane']],
+    [['TEOS'], ['tetraethyl orthosilicate']],
+    [['TBAF'], ['tetrabutylammonium fluoride']],
+    [['TBAOH'], ['tetrabutylammonium hydroxide']],
+    [['TBATB'], ['tetrabutylammonium tribromide']],
+    [['TBAPF6'], ['tetrabutylammonium hexafluorophosphate']],
+    [['TBABF4'], ['tetrabutylammonium tetrafluoroborate']],
+    [['BF3·OEt2', 'BF3'], ['boron trifluoride diethyl etherate']],
+    [['BBr3'], ['boron tribromide', 'tribromuro de boro']],
+    [['TiCl4'], ['titanium(iv) chloride', 'tetracloruro de titanio']],
+    [['ZrCl4'], ['zirconium (iv) tetrachloride', 'zirconium tetrachloride']],
+    [['AlCl3'], ['aluminum chloride', 'cloruro de aluminio']],
+    [['FeCl3'], ['iron(iii) chloride', 'cloruro ferrico']],
+    [['SOCl2'], ['thionyl chloride', 'cloruro de tionilo']],
+    [['(COCl)2'], ['oxalyl chloride', 'cloruro de oxalilo']],
+    [['AcCl'], ['acetyl chloride', 'cloruro de acetilo']],
+    [['I2'], ['iodine', 'yodo']],
+    [['Br2'], ['bromine', 'bromo elemental']],
+    [['Pd(PPh3)4'], ['tetrakis(triphenylphosphine)palladium']],
+    [['PdCl2(PPh3)2'], ['bis(triphenylphosphine)palladium (ii) dichloride', 'bis(triphenylphosphine)palladium(ii) dichloride']],
+    [['Pd(dppf)Cl2', 'PdCl2(dppf)'], ['bis(diphenylphosphino)ferrocene]dichloropalladium']],
+    [['Pd(OAc)2'], ['palladium (ii) acetate', 'palladium acetate', 'acetato de paladio']],
+    [['Pd/C'], ['palladium on powdered charcoal', 'palladium on carbon', 'paladio sobre carbon']],
+    [['Pt/C'], ['platinum on carbon']],
+    [['PdCl2'], ['palladium (ii) chloride', 'palladium(ii) chloride', 'cloruro de paladio']],
+    [['PPh3'], ['triphenyl phosphine', 'triphenylphosphine']],
+    [['B2pin2'], ['bis(pinacolato)diboron']],
+    [['DavePhos'], ["2-dicyclohexylphosphino-2'-(n,n-dimethylamino)biphenyl"]],
+    [['BHT'], ['2,6-di-tert-butyl-4-methylphenol']],
+    [['EDTA'], ['ethylenediaminetetraacetic acid', 'ethylendiaminotetracetic acid', 'ethylendinitriletetraacetic acid']],
+    [['DMAD'], ['dimethyl acetylenedicarboxylate']],
+    [['TCNQ'], ['7,7,8,8-tetracyanoquinodimethane']],
+    [['TTF'], ['tetrathiafulvalene']],
+    [['PTCDA'], ['perylene-3,4,9,10-tetracarboxylic dianhydride', 'perylene-3,4,9,10,tetracarboxylic dianhydride']],
+    [['PMMA'], ['poly(methyl methacrylate)', 'poly(methyl)methacrilate']],
+    [['PEG'], ['polyethylene glycol', 'polyethylene glicol', 'poly(ethylene oxide)']],
+    [['PVDF'], ['poly(vinylidene fluoride)', 'poly(vinyldene fluoride)']],
+    [['DNPH'], ['2,4-dinitrophenylhydrazine']],
+    [['Lawesson'], ["lawesson's reagent", "lawesson's"]],
+    [['DPA'], ['9,10-diphenylanthracene']],
+    [['BTD'], ['2,1,3-benzothiadiazole']]
+  ];
+
+  // Palabras sueltas español <-> inglés (para búsquedas como "cloruro de ...", "ácido ...")
+  var PAL = {
+    'acido': 'acid', 'cloruro': 'chloride', 'bromuro': 'bromide', 'yoduro': 'iodide', 'fluoruro': 'fluoride',
+    'sulfato': 'sulfate', 'sulfito': 'sulfite', 'nitrato': 'nitrate', 'nitrito': 'nitrite', 'acetato': 'acetate',
+    'carbonato': 'carbonate', 'bicarbonato': 'bicarbonate', 'fosfato': 'phosphate', 'hidroxido': 'hydroxide',
+    'oxido': 'oxide', 'hidruro': 'hydride', 'cianuro': 'cyanide', 'azida': 'azide', 'perclorato': 'perchlorate',
+    'sodio': 'sodium', 'potasio': 'potassium', 'litio': 'lithium', 'magnesio': 'magnesium', 'calcio': 'calcium',
+    'bario': 'barium', 'cesio': 'cesium', 'cobre': 'copper', 'hierro': 'iron', 'niquel': 'nickel', 'cobalto': 'cobalt',
+    'paladio': 'palladium', 'platino': 'platinum', 'plata': 'silver', 'estano': 'tin', 'aluminio': 'aluminum',
+    'amonio': 'ammonium', 'titanio': 'titanium', 'circonio': 'zirconium', 'rutenio': 'ruthenium', 'antimonio': 'antimony',
+    'metilo': 'methyl', 'etilo': 'ethyl', 'propilo': 'propyl', 'butilo': 'butyl', 'fenilo': 'phenyl', 'bencilo': 'benzyl',
+    'acetilo': 'acetyl', 'tionilo': 'thionyl', 'oxalilo': 'oxalyl', 'tosilo': 'tosyl', 'sulfonilo': 'sulfonyl',
+    'cloro': 'chloro', 'yodo': 'iodo', 'hidroxi': 'hydroxy', 'metoxi': 'methoxy', 'etoxi': 'ethoxy',
+    'anhidrido': 'anhydride', 'aldehido': 'aldehyde', 'benzaldehido': 'benzaldehyde', 'amina': 'amine', 'anilina': 'aniline',
+    'benceno': 'benzene', 'tolueno': 'toluene', 'piridina': 'pyridine', 'naftaleno': 'naphthalene', 'antraceno': 'anthracene',
+    'antraquinona': 'anthraquinone', 'pireno': 'pyrene', 'fenantreno': 'phenanthrene', 'tiofeno': 'thiophene',
+    'furano': 'furan', 'pirrol': 'pyrrole', 'indol': 'indole', 'imidazol': 'imidazole', 'pirazina': 'pyrazine',
+    'carbazol': 'carbazole', 'fenol': 'phenol', 'eter': 'ether', 'cetona': 'ketone', 'acrilato': 'acrylate',
+    'malonato': 'malonate', 'benzoico': 'benzoic', 'acetico': 'acetic', 'formico': 'formic', 'oxalico': 'oxalic',
+    'citrico': 'citric', 'salicilico': 'salicylic', 'ftalico': 'phthalic', 'boronico': 'boronic', 'sulfonico': 'sulfonic',
+    'glucosa': 'glucose', 'urea': 'urea', 'cumarina': 'coumarin', 'curcumina': 'curcumin', 'ferroceno': 'ferrocene',
+    'colesterol': 'cholesterol', 'azufre': 'sulfur', 'yodo2': 'iodine'
+  };
+  var VACIAS = { 'de': 1, 'del': 1, 'la': 1, 'el': 1, 'los': 1, 'las': 1, 'y': 1, 'en': 1, 'con': 1 };
+  var PAL2 = {};
+  Object.keys(PAL).forEach(function (es) { PAL2[es] = [PAL[es]]; (PAL2[PAL[es]] = PAL2[PAL[es]] || []).push(es); });
+
+  function espaciado(s) { return ' ' + norm(s).replace(/[^a-z0-9]+/g, ' ').trim() + ' '; }
+  var SIN2 = SIN.map(function (e) { return { abr: e[0], nombres: e[1], pats: e[1].map(espaciado) }; });
+
+  function aliasDe(nombre) {
+    var s = espaciado(nombre), abr = [], extra = [];
+    SIN2.forEach(function (e) {
+      // Solo si el nombre EMPIEZA con ese compuesto (evita que "Biphenyl-4-methanol" se tome como metanol)
+      if (e.pats.some(function (p) { return s.indexOf(p) === 0; })) {
+        e.abr.forEach(function (a) { if (abr.indexOf(a) < 0) abr.push(a); });
+        e.nombres.forEach(function (n) { extra.push(n); });
+      }
+    });
+    return { abr: abr, extra: extra, texto: abr.concat(extra).join(' | ') };
+  }
+
+
   // Agrupa frascos del mismo reactivo (misma clave y mismo nombre)
   function agrupar(rows) {
     var map = {}, out = [];
@@ -127,7 +345,8 @@
       if (r[8] && g.notas.indexOf(r[8]) < 0) g.notas.push(r[8]);
     });
     out.forEach(function (g) {
-      var t = g.k + ' ' + g.n + ' ' + g.cas;
+      var al = aliasDe(g.n); g.abr = al.abr; g.abrc = al.abr.map(compact).concat(al.extra.map(compact));
+      var t = g.k + ' ' + g.n + ' ' + g.cas + ' | ' + al.texto;
       g.nn = norm(g.n); g.t = norm(t); g.c = compact(t); g.kc = compact(g.k); g.casc = compact(g.cas);
     });
     return out;
@@ -149,6 +368,8 @@
   function puntaje(d, q, qc, words) {
     if (qc && d.kc === qc) return 0;                 // clave exacta
     if (qc && d.casc === qc) return 1;               // CAS exacto
+    var qs = compact(words.join(''));
+    if (qc && (d.abrc.indexOf(qc) >= 0 || d.abrc.indexOf(qs) >= 0)) return 1.5;   // abreviatura, fórmula o nombre equivalente exacto (DBU, TFA, ácido acético)
     if (d.nn.indexOf(q) === 0) return 2;             // el nombre empieza con lo buscado
     if ((' ' + d.nn.replace(/[^a-z0-9]+/g, ' ')).indexOf(' ' + words[0]) >= 0) return 3; // alguna palabra empieza así
     return 4;
@@ -177,22 +398,26 @@
     if (!LOADED) { count.textContent = ''; out.innerHTML = '<div class="loading">Cargando inventario…</div>'; return; }
     if (!qraw && !lab && !cat) { count.textContent = ''; out.innerHTML = ''; return; }
     var q = norm(qraw), qc = compact(qraw);
-    var words = q.split(/\s+/).filter(Boolean);
+    var words = q.split(/\s+/).filter(function (w) { return w && !VACIAS[w]; });
+    if (!words.length && q) words = q.split(/\s+/).filter(Boolean);
+    // Cada palabra se busca también traducida (español <-> inglés)
+    var vars = words.map(function (w) { return [w].concat(PAL2[w] || []); });
     var res = DATA.filter(function (d) {
       if (lab && d.labs.indexOf(lab) < 0) return false;
       if (cat && d.cat !== cat) return false;
-      return words.every(function (w) { var wc = compact(w); return d.t.indexOf(w) >= 0 || (wc && d.c.indexOf(wc) >= 0); });
+      return vars.every(function (vs) { return vs.some(function (w) { var wc = compact(w); return d.t.indexOf(w) >= 0 || (wc && d.c.indexOf(wc) >= 0); }); });
     });
     if (words.length) res.forEach(function (d) { d.s = puntaje(d, q, qc, words); });
     res.sort(function (a, b) { return (words.length ? a.s - b.s : 0) || keyNum(a.k) - keyNum(b.k); });
     count.textContent = res.length + (res.length === 1 ? ' reactivo' : ' reactivos') + (res.length > MAX ? ' (se muestran los primeros ' + MAX + ')' : '');
     if (!res.length) { out.innerHTML = '<div class="empty">Sin resultados. Prueba con menos letras o con el CAS.</div>'; return; }
+    var hw = [].concat.apply([], vars);
     var h = '<div class="list">';
     res.slice(0, MAX).forEach(function (d) {
       var varios = d.labs.length > 1;
-      h += '<div class="item"><div class="top"><span class="k">' + hl(d.k, words) + '</span><span class="n">' + hl(d.n, words) + '</span>' +
+      h += '<div class="item c' + esc(d.cat.charAt(0)) + '"><div class="top"><span class="k">' + hl(d.k, hw) + '</span><span class="n">' + hl(d.n, hw) + '</span>' +
            '<span class="labs">' + d.labs.map(function (l) { return '<span class="tag">' + esc(l) + '</span>'; }).join('') + '</span></div>' +
-           '<div class="meta">' + (d.cas ? '<span>CAS <b>' + hl(d.cas, words) + '</b></span>' : '') + '<span>' + esc(d.cat) + '</span>' + ficha(d) + '</div>' +
+           '<div class="meta">' + (d.cas ? '<span>CAS <b>' + hl(d.cas, hw) + '</b></span>' : '') + '<span class="cat">' + esc(d.cat.replace(/^[A-E] · /, '')) + '</span>' + (d.abr.length ? '<span class="abr">' + d.abr.map(function (a) { return hl(a, hw); }).join(' · ') + '</span>' : '') + ficha(d) + '</div>' +
            '<div class="pres">' + d.pres.map(function (p) {
              var txt = [p.q, p.m].filter(Boolean).map(esc).join(' · ');
              if (p.p) txt += ' · ' + esc(p.p) + (/^\d+$/.test(p.p) ? (p.p === '1' ? ' pza' : ' pzas') : '');
