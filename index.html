@@ -103,6 +103,16 @@
   .hacc { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-left: auto; }
   .lnk.del { color: var(--muted); font-weight: 500; font-size: 12px; }
   .hmore { color: var(--muted); font-size: 12px; }
+  .fld { display: grid; gap: 3px; font-size: 13px; color: var(--muted); }
+  .acwrap { position: relative; }
+  .sug { position: absolute; left: 0; right: 0; top: calc(100% + 4px); z-index: 5; background: var(--panel); border: 1px solid var(--line);
+         border-radius: 10px; padding: 4px; box-shadow: 0 6px 18px rgba(0,0,0,.25); display: grid; }
+  .sug[hidden] { display: none; }
+  .sug button { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; text-align: left; background: none; border: none;
+                color: var(--text); font-size: 15px; padding: 8px 10px; border-radius: 7px; cursor: pointer; }
+  .sug button:hover, .sug button:focus { background: var(--chip); }
+  .sug button span { color: var(--muted); font-size: 12px; white-space: nowrap; }
+  .tom { color: var(--muted); font-weight: 600; } .regbox[hidden] { display: none; } .regbox { display: grid; gap: 8px; }
   .ok { color: var(--good); font-weight: 600; } .pend { color: var(--loan); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; }
   .resumen { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; display: grid; gap: 4px; }
   .rrow { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 14px; }
@@ -134,7 +144,6 @@
   </div>
 
   <div class="bar"><span class="count" id="count"></span><button class="share" id="share" hidden>Copiar enlace de esta búsqueda</button></div>
-  <datalist id="labsPrest"></datalist>
   <div id="out"><div class="loading">Cargando inventario…</div></div>
 
   <div class="foot">
@@ -485,7 +494,7 @@
 
   // ===== Préstamos =====
   var API_BASE = 'https://script.google.com/macros/s/AKfycbzd0u9hGwlOWxvFpax4MNk5qxwiMw7r8cyLlFrZT0tt7KkL9A9VMW5uak-oVY8EWOZM/exec';
-  var PREST = [], PREST_OK = false, PIDECLAVE = true, GID = {}, ABIERTO = null, PENDIENTE = false;
+  var PREST = [], LABS = [], PREST_OK = false, PIDECLAVE = true, GID = {}, ABIERTO = null, PENDIENTE = false;
   var KEYP = 'prestamosMolinaGroup';
   function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k) || ''; if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return ''; } }
   function p2(x) { return (x < 10 ? '0' : '') + x; }
@@ -493,7 +502,7 @@
   function HOY() { return iso(new Date()); }
   function corta(s) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? m[3] + '/' + m[2] + '/' + m[1].slice(2) : esc(s || ''); }
   function gidDe(clave, nombre) { return String(clave).toUpperCase().trim() + '|' + compact(nombre); }
-  function vencido(l) { return !l.dev && l.reg && l.reg < HOY(); }
+  function vencido(l) { return l.frasco && !l.dev && l.reg && l.reg < HOY(); }
 
   // Une cada préstamo con su reactivo del inventario
   function indexarPrestamos() {
@@ -503,15 +512,25 @@
       var kc = d.k.toUpperCase(); (porClave[kc] = porClave[kc] || []).push(d);
     });
     PREST.forEach(function (r) {
-      var l = { id: r[0], fecha: r[1], k: r[2], n: r[3], cant: r[4], lab: r[5], reg: r[6], dev: r[7] };
+      var l = { id: r[0], fecha: r[1], k: r[2], n: r[3], cant: r[4], lab: r[5], reg: r[6], dev: r[7], frasco: (r[8] || (r[6] ? 'frasco' : 'cantidad')) === 'frasco' };
       var d = GID[gidDe(l.k, l.n)];
       if (!d) { var c = porClave[String(l.k).toUpperCase().trim()]; if (c && c.length === 1) d = c[0]; }
       l.d = d || null;
-      if (d) { d.loans.push(l); if (!l.dev) d.act.push(l); }
+      if (d) { d.loans.push(l); if (l.frasco && !l.dev) d.act.push(l); }
     });
     DATA.forEach(function (d) { d.loans.sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; }); });
-    var labs = {}; PREST.forEach(function (r) { if (r[5]) labs[r[5]] = 1; });
-    document.getElementById('labsPrest').innerHTML = Object.keys(labs).sort().map(function (l) { return '<option value="' + esc(l) + '">'; }).join('');
+    // Investigadores/laboratorios ya usados: se agrupan sin importar mayúsculas, acentos ni puntos,
+    // y se toma como nombre "oficial" la forma que más se ha escrito
+    var grupos = {};
+    PREST.forEach(function (r) {
+      var v = String(r[5] || '').trim(); if (!v) return;
+      var k = compact(v), g = grupos[k] = grupos[k] || { n: 0, formas: {} };
+      g.n++; g.formas[v] = (g.formas[v] || 0) + 1;
+    });
+    LABS = Object.keys(grupos).map(function (k) {
+      var f = grupos[k].formas, v = Object.keys(f).sort(function (a, b) { return f[b] - f[a]; })[0];
+      return { v: v, k: k, n: grupos[k].n, w: ' ' + norm(v).replace(/[^a-z0-9]+/g, ' ') };
+    }).sort(function (a, b) { return b.n - a.n || a.v.localeCompare(b.v); });
   }
 
   function cargarPrestamos(res, guardar) {
@@ -541,9 +560,10 @@
   }
 
   function lineaHist(l, conReactivo) {
-    var estado = l.dev ? '<span class="ok">devuelto ' + corta(l.dev) + '</span>' : (vencido(l) ? '<span class="bad">vencido</span>' : '<span class="pend">pendiente</span>');
+    var estado = !l.frasco ? '<span class="tom">tomó una cantidad</span>' : l.dev ? '<span class="ok">frasco devuelto ' + corta(l.dev) + '</span>' :
+      (vencido(l) ? '<span class="bad">frasco vencido</span>' : '<span class="pend">frasco pendiente</span>');
     return '<div class="hrow" data-id="' + esc(l.id) + '"><span class="htxt">' + corta(l.fecha) + ' · ' + (conReactivo ? '<b>' + esc(l.k) + '</b> ' + esc(l.d ? l.d.n : l.n) + ' · ' : '') +
-      esc(l.lab) + (l.cant ? ' · ' + esc(l.cant) : '') + ' → ' + estado + '</span>' +
+      esc(l.lab) + (l.cant ? ' · ' + esc(l.cant) : '') + ' · ' + estado + '</span>' +
       (conReactivo ? '<span class="hacc"><button class="lnk del" data-borrar="' + esc(l.id) + '">Borrar</button></span>' : '') + '</div>';
   }
 
@@ -553,22 +573,47 @@
 
   function formHTML(d) {
     var hoy = new Date(), mas = function (n) { var x = new Date(hoy); x.setDate(x.getDate() + n); return iso(x); };
-    return '<form class="pform" data-gid="' + esc(d.gid) + '">' +
+    return '<form class="pform" data-gid="' + esc(d.gid) + '" data-tipo="cantidad">' +
       '<div class="ftitle">Prestar ' + esc(d.k) + '</div>' +
-      '<label>Laboratorio o grupo *<input name="laboratorio" list="labsPrest" required placeholder="ej. Lab. 2-4 o Grupo X"></label>' +
-      '<label>Cantidad<input name="cantidad" placeholder="ej. 5 mL, 2 g o el frasco"></label>' +
-      '<label>¿Quién se lo lleva?<input name="quien" placeholder="opcional"></label>' +
-      '<div class="fl">¿Cuándo lo regresa?</div><div class="chips">' +
+      '<div class="chips"><button type="button" class="chip on" data-tipo="cantidad">Solo toma una cantidad</button>' +
+        '<button type="button" class="chip" data-tipo="frasco">Se lleva el frasco</button></div>' +
+      '<div class="fld"><span>Investigador o laboratorio *</span><div class="acwrap"><input name="laboratorio" autocomplete="off" required placeholder="ej. Dr. Pérez o Lab. 2-4">' +
+        '<div class="sug" hidden></div></div></div>' +
+      '<label>Cantidad<input name="cantidad" placeholder="ej. 5 mL o 2 g"></label>' +
+      '<div class="regbox" hidden><div class="fl">¿Cuándo regresa el frasco?</div><div class="chips">' +
         '<button type="button" class="chip on" data-reg="">Sin fecha</button>' +
         '<button type="button" class="chip" data-reg="' + mas(7) + '">1 semana</button>' +
         '<button type="button" class="chip" data-reg="' + mas(14) + '">2 semanas</button>' +
         '<button type="button" class="chip" data-reg="' + mas(30) + '">1 mes</button>' +
-        '<input name="regresa" type="date" aria-label="Otra fecha"></div>' +
+        '<input name="regresa" type="date" aria-label="Otra fecha"></div></div>' +
       '<label>Prestado por<input name="por" placeholder="opcional" value="' + esc(ls('porMG')) + '"></label>' +
       campoClave() +
       '<div class="fbtns"><button type="submit" class="bprim">Guardar</button><button type="button" class="bsec" data-cerrar="1">Cancelar</button><span class="fmsg"></span></div>' +
-      '<div class="fnote">Solo el laboratorio es obligatorio. Los nombres no se muestran en la página.</div></form>';
+      '<div class="fnote">Solo «Investigador o laboratorio» es obligatorio. Si se lleva el frasco, queda como pendiente hasta que lo devuelvan.</div></form>';
   }
+
+  // Sugerencias al escribir el investigador o laboratorio
+  function sugerir(inp) {
+    var box = inp.parentNode.querySelector('.sug'), q = compact(inp.value), qw = norm(inp.value).trim();
+    var lista = LABS.filter(function (l) { return !q || l.k.indexOf(q) >= 0 || l.w.indexOf(' ' + qw) >= 0; });
+    lista.sort(function (a, b) { return (b.k.indexOf(q) === 0) - (a.k.indexOf(q) === 0) || b.n - a.n; });
+    lista = lista.filter(function (l) { return l.k !== q || l.v !== inp.value.trim(); }).slice(0, 6);
+    box.innerHTML = lista.map(function (l) {
+      return '<button type="button" data-sug="' + esc(l.v) + '">' + esc(l.v) + '<span>' + l.n + (l.n === 1 ? ' registro' : ' registros') + '</span></button>';
+    }).join('');
+    box.hidden = !lista.length;
+  }
+  function canonico(v) {
+    var k = compact(v), l = LABS.find(function (x) { return x.k === k; });
+    return l ? l.v : v;
+  }
+  var OUT = document.getElementById('out');
+  OUT.addEventListener('input', function (ev) { if (ev.target.name === 'laboratorio') sugerir(ev.target); });
+  OUT.addEventListener('focusin', function (ev) { if (ev.target.name === 'laboratorio') sugerir(ev.target); });
+  OUT.addEventListener('focusout', function (ev) {
+    if (ev.target.name === 'laboratorio') { var box = ev.target.parentNode.querySelector('.sug'); setTimeout(function () { box.hidden = true; }, 150); }
+  });
+  OUT.addEventListener('mousedown', function (ev) { if (ev.target.closest('[data-sug]')) ev.preventDefault(); });
 
   function enviar(datos) {
     datos.claveLab = datos.claveLab || ls('claveLabMG');
@@ -611,9 +656,19 @@
       enviar({ accion: 'borrar', id: b.dataset.confborr, claveLab: hc ? hc.value.trim() : '' })
         .then(function (res) { ABIERTO = null; PENDIENTE = false; cargarPrestamos(res, true); })
         .catch(function (e) { b.disabled = false; hm.textContent = e.message; });
+    } else if (b.dataset.sug !== undefined) {
+      var si = b.closest('.acwrap').querySelector('input');
+      si.value = b.dataset.sug; b.parentNode.hidden = true;
+      var sf = si.form.cantidad; if (sf) sf.focus();
+    } else if (b.dataset.tipo !== undefined) {
+      var ft = b.closest('form');
+      ft.dataset.tipo = b.dataset.tipo;
+      b.parentNode.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('on', c === b); });
+      ft.querySelector('.regbox').hidden = b.dataset.tipo !== 'frasco';
+      ft.cantidad.placeholder = b.dataset.tipo === 'frasco' ? 'opcional, ej. 1 L' : 'ej. 5 mL o 2 g';
     } else if (b.dataset.reg !== undefined) {
       var f = b.closest('form');
-      f.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('on', c === b); });
+      b.parentNode.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('on', c === b); });
       f.regresa.value = b.dataset.reg;
     } else if (b.dataset.cerrar) {
       b.closest('.slot').innerHTML = ''; cerrarPaneles();
@@ -633,18 +688,19 @@
   });
 
   document.getElementById('out').addEventListener('change', function (ev) {
-    if (ev.target.name === 'regresa') ev.target.closest('form').querySelectorAll('.chip').forEach(function (c) { c.classList.remove('on'); });
+    if (ev.target.name === 'regresa') ev.target.parentNode.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('on'); });
   });
 
   document.getElementById('out').addEventListener('submit', function (ev) {
     ev.preventDefault();
     var f = ev.target, d = GID[f.dataset.gid], msg = f.querySelector('.fmsg'), btn = f.querySelector('[type=submit]');
     var val = function (n) { return f[n] ? f[n].value.trim() : ''; };
-    if (!val('laboratorio')) { msg.textContent = 'Falta el laboratorio'; return; }
+    if (!val('laboratorio')) { msg.textContent = 'Falta el investigador o laboratorio'; return; }
+    var frasco = f.dataset.tipo === 'frasco';
     btn.disabled = true; msg.textContent = 'Guardando…';
     if (val('por')) ls('porMG', val('por'));
-    enviar({ accion: 'prestar', clave: d.k, reactivo: d.n, laboratorio: val('laboratorio'), cantidad: val('cantidad'),
-             quien: val('quien'), regresa: val('regresa'), por: val('por'), claveLab: val('claveLab') })
+    enviar({ accion: 'prestar', clave: d.k, reactivo: d.n, laboratorio: canonico(val('laboratorio')), cantidad: val('cantidad'),
+             tipo: frasco ? 'frasco' : 'cantidad', regresa: frasco ? val('regresa') : '', por: val('por'), claveLab: val('claveLab') })
       .then(function (res) { ABIERTO = null; PENDIENTE = false; cargarPrestamos(res, true); })
       .catch(function (e) {
         btn.disabled = false; msg.textContent = e.message;
@@ -663,20 +719,9 @@
       d.loans.forEach(function (l) { lista.push(l); });
     });
     lista.sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
-    count.textContent = lista.length + (lista.length === 1 ? ' préstamo' : ' préstamos');
+    count.textContent = lista.length + (lista.length === 1 ? ' registro' : ' registros');
     if (!lista.length) { out.innerHTML = '<div class="empty">No hay préstamos registrados' + (qraw || lab || cat ? ' con estos filtros' : '') + '.</div>'; return; }
-    var porLab = {};
-    lista.forEach(function (l) {
-      var s = porLab[l.lab] = porLab[l.lab] || { n: 0, p: 0, v: 0 };
-      s.n++; if (!l.dev) s.p++; if (vencido(l)) s.v++;
-    });
-    var labs = Object.keys(porLab).sort(function (a, b) { return (porLab[b].v - porLab[a].v) || (porLab[b].p - porLab[a].p) || a.localeCompare(b); });
-    var h = '<div class="resumen"><div class="ftitle">Por laboratorio</div>' + labs.map(function (k) {
-      var s = porLab[k];
-      return '<div class="rrow"><b>' + esc(k) + '</b><span>' + s.n + (s.n === 1 ? ' préstamo' : ' préstamos') +
-        (s.p ? ' · <span class="pend">' + s.p + ' pendiente' + (s.p > 1 ? 's' : '') + '</span>' : '') +
-        (s.v ? ' · <span class="bad">' + s.v + ' vencido' + (s.v > 1 ? 's' : '') + '</span>' : '') + '</span></div>';
-    }).join('') + '</div>';
+    var h = '';
     h += '<div class="hist big">' + lista.slice(0, 150).map(function (l) { return lineaHist(l, true); }).join('') + '</div>';
     out.innerHTML = h;
   }
