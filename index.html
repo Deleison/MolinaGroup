@@ -15,6 +15,7 @@
     --line: #dde3ea; --accent: #1f5fa8; --chip: #eef3fa;
     --hl: #fff1a8; --hl-text: #17202a;
     --input: #ffffff; --input-line: #1f5fa8; --ph: #6b7886;
+    --loan: #a65d00; --loan-bg: #fff4e0; --loan-line: #f0c68a; --bad: #c0262d; --bad-bg: #fdecec; --good: #2e8b57;
   }
   @media (prefers-color-scheme: dark) {
     :root {
@@ -22,6 +23,7 @@
       --line: #2a3542; --accent: #5aa2f0; --chip: #22303e;
       --hl: #6b5a12; --hl-text: #fff6d0;
       --input: #263445; --input-line: #5aa2f0; --ph: #b4c0cc;
+      --loan: #f5b85c; --loan-bg: #3a2c14; --loan-line: #7a5a26; --bad: #ff8a8a; --bad-bg: #3d1c1e; --good: #5cc98a;
     }
   }
   * { box-sizing: border-box; }
@@ -69,6 +71,42 @@
   .p .lab { color: var(--muted); }
   .note { font-size: 12px; color: var(--muted); margin-top: 4px; }
   mark { background: var(--hl); color: var(--hl-text); border-radius: 3px; padding: 0 1px; }
+  .lnk { background: none; border: none; padding: 0; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .lnk:hover { text-decoration: underline; }
+  .loan { margin-top: 6px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 4px 10px;
+          font-size: 13px; padding: 5px 9px; border-radius: 8px; background: var(--loan-bg); color: var(--loan); border: 1px solid var(--loan-line); }
+  .loan b { font-weight: 700; }
+  .loan.venc { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+  .loan .acc { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .loan .lnk { color: inherit; text-decoration: underline; }
+  .dclave { width: 120px; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--line); background: var(--input); color: var(--text); font-size: 13px; }
+  .pform { margin-top: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); display: grid; gap: 8px; }
+  .pform label { display: grid; gap: 3px; font-size: 13px; color: var(--muted); }
+  .pform input { font-size: 16px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--input); color: var(--text); width: 100%; }
+  .ftitle { font-weight: 700; font-size: 14px; }
+  .fl { font-size: 13px; color: var(--muted); margin-bottom: -4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .chips input { width: auto; font-size: 14px; padding: 5px 8px; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .fbtns { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .bprim { background: var(--accent); color: var(--bg); border: none; border-radius: 8px; padding: 9px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .bsec { background: none; color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 8px 14px; font-size: 14px; cursor: pointer; }
+  .bprim.sm, .bsec.sm { padding: 4px 10px; font-size: 13px; }
+  .bprim:disabled { opacity: .6; }
+  .fmsg { font-size: 13px; color: var(--bad); }
+  .fnote { font-size: 12px; color: var(--muted); }
+  .hist { margin-top: 8px; font-size: 13px; display: grid; gap: 3px; }
+  .hist.big { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; gap: 5px; }
+  .hrow { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; }
+  .hrow b { font-weight: 700; }
+  .hacc { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-left: auto; }
+  .lnk.del { color: var(--muted); font-weight: 500; font-size: 12px; }
+  .hmore { color: var(--muted); font-size: 12px; }
+  .ok { color: var(--good); font-weight: 600; } .pend { color: var(--loan); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; }
+  .resumen { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; display: grid; gap: 4px; }
+  .rrow { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 14px; }
+  select[hidden] { display: none; }
   .empty, .loading { padding: 28px; text-align: center; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
   .foot { margin-top: 28px; text-align: center; }
   .btn2 { display: inline-block; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); color: var(--accent);
@@ -89,10 +127,12 @@
     <div class="filters">
       <select id="lab"><option value="">Ambos laboratorios</option><option>1-6</option><option>2-1</option></select>
       <select id="cat"><option value="">Todas las categorías</option></select>
+      <select id="pres" hidden><option value="">Todos los reactivos</option><option value="ahora">Prestados ahora</option><option value="vencidos">Préstamos vencidos</option><option value="historial">Historial de préstamos</option></select>
     </div>
   </div>
 
   <div class="bar"><span class="count" id="count"></span><button class="share" id="share" hidden>Copiar enlace de esta búsqueda</button></div>
+  <datalist id="labsPrest"></datalist>
   <div id="out"><div class="loading">Cargando inventario…</div></div>
 
   <div class="foot">
@@ -355,6 +395,7 @@
   function load(res, provisional) {
     LOADED = true;
     DATA = agrupar(res.rows);
+    indexarPrestamos();
     var frascos = res.rows.length;
     document.getElementById('sub').textContent = DATA.length + ' reactivos · ' + frascos + ' frascos · datos del ' + res.actualizado + (provisional ? ' · actualizando…' : '');
     var cats = {}; DATA.forEach(function (d) { cats[d.cat] = 1; });
@@ -362,7 +403,7 @@
     while (sel.options.length > 1) sel.remove(1);
     Object.keys(cats).sort().forEach(function (c) { var o = document.createElement('option'); o.textContent = c; sel.appendChild(o); });
     sel.value = actual;
-    search();
+    refrescar();
   }
 
   function puntaje(d, q, qc, words) {
@@ -382,9 +423,9 @@
     return '<a class="ficha" href="' + url + '" target="_blank" rel="noopener">Ficha de seguridad ↗</a>';
   }
 
-  function actualizarURL(q, lab, cat) {
+  function actualizarURL(q, lab, cat, modo) {
     var p = new URLSearchParams();
-    if (q) p.set('q', q); if (lab) p.set('lab', lab); if (cat) p.set('cat', cat);
+    if (q) p.set('q', q); if (lab) p.set('lab', lab); if (cat) p.set('cat', cat); if (modo) p.set('p', modo);
     var s = p.toString();
     try { history.replaceState(null, '', location.pathname + (s ? '?' + s : '')); } catch (e) {}
     document.getElementById('share').hidden = !s;
@@ -393,52 +434,263 @@
   function search() {
     var qraw = document.getElementById('q').value.trim();
     var lab = document.getElementById('lab').value, cat = document.getElementById('cat').value;
+    var modo = PREST_OK ? document.getElementById('pres').value : '';
     var out = document.getElementById('out'), count = document.getElementById('count');
-    actualizarURL(qraw, lab, cat);
+    ABIERTO = null; PENDIENTE = false;
+    actualizarURL(qraw, lab, cat, modo);
     if (!LOADED) { count.textContent = ''; out.innerHTML = '<div class="loading">Cargando inventario…</div>'; return; }
-    if (!qraw && !lab && !cat) { count.textContent = ''; out.innerHTML = ''; return; }
+    if (!qraw && !lab && !cat && !modo) { count.textContent = ''; out.innerHTML = ''; return; }
     var q = norm(qraw), qc = compact(qraw);
     var words = q.split(/\s+/).filter(function (w) { return w && !VACIAS[w]; });
     if (!words.length && q) words = q.split(/\s+/).filter(Boolean);
     // Cada palabra se busca también traducida (español <-> inglés)
     var vars = words.map(function (w) { return [w].concat(PAL2[w] || []); });
+    if (modo === 'historial') { vistaHistorial(qraw, vars, lab, cat); return; }
     var res = DATA.filter(function (d) {
+      if (modo === 'ahora' && !d.act.length) return false;
+      if (modo === 'vencidos' && !d.act.some(vencido)) return false;
       if (lab && d.labs.indexOf(lab) < 0) return false;
       if (cat && d.cat !== cat) return false;
       return vars.every(function (vs) { return vs.some(function (w) { var wc = compact(w); return d.t.indexOf(w) >= 0 || (wc && d.c.indexOf(wc) >= 0); }); });
     });
     if (words.length) res.forEach(function (d) { d.s = puntaje(d, q, qc, words); });
-    res.sort(function (a, b) { return (words.length ? a.s - b.s : 0) || keyNum(a.k) - keyNum(b.k); });
-    count.textContent = res.length + (res.length === 1 ? ' reactivo' : ' reactivos') + (res.length > MAX ? ' (se muestran los primeros ' + MAX + ')' : '');
-    if (!res.length) { out.innerHTML = '<div class="empty">Sin resultados. Prueba con menos letras o con el CAS.</div>'; return; }
+    var antiguo = function (d) { return d.act.reduce(function (m, l) { return l.fecha < m ? l.fecha : m; }, '9999'); };
+    var porPrestamo = function (a, b) {
+      if (!modo) return 0;
+      var va = a.act.some(vencido) ? 0 : 1, vb = b.act.some(vencido) ? 0 : 1;
+      return (va - vb) || (antiguo(a) < antiguo(b) ? -1 : antiguo(a) > antiguo(b) ? 1 : 0);
+    };
+    res.sort(function (a, b) { return (words.length ? a.s - b.s : 0) || porPrestamo(a, b) || keyNum(a.k) - keyNum(b.k); });
+    count.textContent = res.length + (res.length === 1 ? ' reactivo' : ' reactivos') + (modo === 'ahora' ? (res.length === 1 ? ' prestado' : ' prestados') : modo === 'vencidos' ? ' con préstamo vencido' : '') + (res.length > MAX ? ' (se muestran los primeros ' + MAX + ')' : '');
+    if (!res.length) { out.innerHTML = '<div class="empty">' + (modo === 'ahora' ? 'No hay reactivos prestados' + (qraw || lab || cat ? ' con estos filtros' : '') + '.' : modo === 'vencidos' ? 'No hay préstamos vencidos.' : 'Sin resultados. Prueba con menos letras o con el CAS.') + '</div>'; return; }
     var hw = [].concat.apply([], vars);
     var h = '<div class="list">';
     res.slice(0, MAX).forEach(function (d) {
       var varios = d.labs.length > 1;
       h += '<div class="item c' + esc(d.cat.charAt(0)) + '"><div class="top"><span class="k">' + hl(d.k, hw) + '</span><span class="n">' + hl(d.n, hw) + '</span>' +
            '<span class="labs">' + d.labs.map(function (l) { return '<span class="tag">' + esc(l) + '</span>'; }).join('') + '</span></div>' +
-           '<div class="meta">' + (d.cas ? '<span>CAS <b>' + hl(d.cas, hw) + '</b></span>' : '') + '<span class="cat">' + esc(d.cat.replace(/^[A-E] · /, '')) + '</span>' + (d.abr.length ? '<span class="abr">' + d.abr.map(function (a) { return hl(a, hw); }).join(' · ') + '</span>' : '') + ficha(d) + '</div>' +
+           '<div class="meta">' + (d.cas ? '<span>CAS <b>' + hl(d.cas, hw) + '</b></span>' : '') + '<span class="cat">' + esc(d.cat.replace(/^[A-E] · /, '')) + '</span>' + (d.abr.length ? '<span class="abr">' + d.abr.map(function (a) { return hl(a, hw); }).join(' · ') + '</span>' : '') + ficha(d) + botonesPrestamo(d) + '</div>' + etiquetasPrestamo(d) +
            '<div class="pres">' + d.pres.map(function (p) {
              var txt = [p.q, p.m].filter(Boolean).map(esc).join(' · ');
              if (p.p) txt += ' · ' + esc(p.p) + (/^\d+$/.test(p.p) ? (p.p === '1' ? ' pza' : ' pzas') : '');
              if (varios && p.lab) txt += ' <span class="lab">(' + esc(p.lab) + ')</span>';
              return '<span class="p">' + (txt || '—') + '</span>';
            }).join('') + '</div>' +
-           (d.notas.length ? '<div class="note">' + esc(d.notas.join(' · ')) + '</div>' : '') + '</div>';
+           (d.notas.length ? '<div class="note">' + esc(d.notas.join(' · ')) + '</div>' : '') + '<div class="slot"></div></div>';
     });
     out.innerHTML = h + '</div>';
   }
 
+  // ===== Préstamos =====
+  var API_BASE = 'https://script.google.com/macros/s/AKfycbzd0u9hGwlOWxvFpax4MNk5qxwiMw7r8cyLlFrZT0tt7KkL9A9VMW5uak-oVY8EWOZM/exec';
+  var PREST = [], PREST_OK = false, PIDECLAVE = true, GID = {}, ABIERTO = null, PENDIENTE = false;
+  var KEYP = 'prestamosMolinaGroup';
+  function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k) || ''; if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return ''; } }
+  function p2(x) { return (x < 10 ? '0' : '') + x; }
+  function iso(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function HOY() { return iso(new Date()); }
+  function corta(s) { var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s || ''); return m ? m[3] + '/' + m[2] + '/' + m[1].slice(2) : esc(s || ''); }
+  function gidDe(clave, nombre) { return String(clave).toUpperCase().trim() + '|' + compact(nombre); }
+  function vencido(l) { return !l.dev && l.reg && l.reg < HOY(); }
+
+  // Une cada préstamo con su reactivo del inventario
+  function indexarPrestamos() {
+    GID = {}; var porClave = {};
+    DATA.forEach(function (d) {
+      d.gid = gidDe(d.k, d.n); GID[d.gid] = d; d.loans = []; d.act = [];
+      var kc = d.k.toUpperCase(); (porClave[kc] = porClave[kc] || []).push(d);
+    });
+    PREST.forEach(function (r) {
+      var l = { id: r[0], fecha: r[1], k: r[2], n: r[3], cant: r[4], lab: r[5], reg: r[6], dev: r[7] };
+      var d = GID[gidDe(l.k, l.n)];
+      if (!d) { var c = porClave[String(l.k).toUpperCase().trim()]; if (c && c.length === 1) d = c[0]; }
+      l.d = d || null;
+      if (d) { d.loans.push(l); if (!l.dev) d.act.push(l); }
+    });
+    DATA.forEach(function (d) { d.loans.sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; }); });
+    var labs = {}; PREST.forEach(function (r) { if (r[5]) labs[r[5]] = 1; });
+    document.getElementById('labsPrest').innerHTML = Object.keys(labs).sort().map(function (l) { return '<option value="' + esc(l) + '">'; }).join('');
+  }
+
+  function cargarPrestamos(res, guardar) {
+    if (!res || !res.prestamos) return;
+    PREST = res.prestamos; PREST_OK = true; PIDECLAVE = res.pideClave !== false;
+    if (guardar) ls(KEYP, JSON.stringify(res));
+    document.getElementById('pres').hidden = false;
+    if (LOADED) { indexarPrestamos(); refrescar(); }
+  }
+
+  // No redibuja mientras alguien llena un formulario
+  function refrescar() { if (ABIERTO) PENDIENTE = true; else search(); }
+
+  function etiquetasPrestamo(d) {
+    if (!d.act || !d.act.length) return '';
+    return d.act.map(function (l) {
+      var v = vencido(l);
+      return '<div class="loan' + (v ? ' venc' : '') + '" data-id="' + esc(l.id) + '"><span>' + (v ? 'Vencido' : 'Prestado') + ' · <b>' + esc(l.lab) + '</b>' +
+        (l.cant ? ' · ' + esc(l.cant) : '') + ' · desde ' + corta(l.fecha) + (l.reg ? ' · regresa ' + corta(l.reg) : '') + '</span>' +
+        '<span class="acc"><button class="lnk" data-dev="' + esc(l.id) + '">Ya lo devolvieron</button></span></div>';
+    }).join('');
+  }
+
+  function botonesPrestamo(d) {
+    if (!PREST_OK) return '';
+    return '<button class="lnk" data-prestar="' + esc(d.gid) + '">Prestar</button>';
+  }
+
+  function lineaHist(l, conReactivo) {
+    var estado = l.dev ? '<span class="ok">devuelto ' + corta(l.dev) + '</span>' : (vencido(l) ? '<span class="bad">vencido</span>' : '<span class="pend">pendiente</span>');
+    return '<div class="hrow" data-id="' + esc(l.id) + '"><span class="htxt">' + corta(l.fecha) + ' · ' + (conReactivo ? '<b>' + esc(l.k) + '</b> ' + esc(l.d ? l.d.n : l.n) + ' · ' : '') +
+      esc(l.lab) + (l.cant ? ' · ' + esc(l.cant) : '') + ' → ' + estado + '</span>' +
+      (conReactivo ? '<span class="hacc"><button class="lnk del" data-borrar="' + esc(l.id) + '">Borrar</button></span>' : '') + '</div>';
+  }
+
+  function campoClave() {
+    return (PIDECLAVE && !ls('claveLabMG')) ? '<label>Clave del laboratorio<input name="claveLab" type="password" autocomplete="off" required></label>' : '';
+  }
+
+  function formHTML(d) {
+    var hoy = new Date(), mas = function (n) { var x = new Date(hoy); x.setDate(x.getDate() + n); return iso(x); };
+    return '<form class="pform" data-gid="' + esc(d.gid) + '">' +
+      '<div class="ftitle">Prestar ' + esc(d.k) + '</div>' +
+      '<label>Laboratorio o grupo *<input name="laboratorio" list="labsPrest" required placeholder="ej. Lab. 2-4 o Grupo X"></label>' +
+      '<label>Cantidad<input name="cantidad" placeholder="ej. 5 mL, 2 g o el frasco"></label>' +
+      '<label>¿Quién se lo lleva?<input name="quien" placeholder="opcional"></label>' +
+      '<div class="fl">¿Cuándo lo regresa?</div><div class="chips">' +
+        '<button type="button" class="chip on" data-reg="">Sin fecha</button>' +
+        '<button type="button" class="chip" data-reg="' + mas(7) + '">1 semana</button>' +
+        '<button type="button" class="chip" data-reg="' + mas(14) + '">2 semanas</button>' +
+        '<button type="button" class="chip" data-reg="' + mas(30) + '">1 mes</button>' +
+        '<input name="regresa" type="date" aria-label="Otra fecha"></div>' +
+      '<label>Prestado por<input name="por" placeholder="opcional" value="' + esc(ls('porMG')) + '"></label>' +
+      campoClave() +
+      '<div class="fbtns"><button type="submit" class="bprim">Guardar</button><button type="button" class="bsec" data-cerrar="1">Cancelar</button><span class="fmsg"></span></div>' +
+      '<div class="fnote">Solo el laboratorio es obligatorio. Los nombres no se muestran en la página.</div></form>';
+  }
+
+  function enviar(datos) {
+    datos.claveLab = datos.claveLab || ls('claveLabMG');
+    return fetch(API_BASE, { method: 'POST', body: JSON.stringify(datos), headers: { 'Content-Type': 'text/plain;charset=utf-8' } })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (res) {
+        if (!res.ok) { if (res.error === 'clave') ls('claveLabMG', null); throw new Error(res.mensaje || 'Error'); }
+        if (datos.claveLab) ls('claveLabMG', datos.claveLab);
+        return res;
+      });
+  }
+
+  function cerrarPaneles() {
+    ABIERTO = null;
+    if (PENDIENTE) { PENDIENTE = false; search(); }
+  }
+
+  document.getElementById('out').addEventListener('click', function (ev) {
+    var b = ev.target.closest('button'); if (!b) return;
+    var item = b.closest('.item');
+    if (b.dataset.prestar !== undefined) {
+      var d = GID[b.dataset.prestar], slot = item.querySelector('.slot');
+      if (slot.querySelector('.pform')) { slot.innerHTML = ''; cerrarPaneles(); return; }
+      slot.innerHTML = formHTML(d); ABIERTO = d.gid;
+      slot.querySelector('input[name=laboratorio]').focus();
+    } else if (b.dataset.hist !== undefined) {
+      var d2 = GID[b.dataset.hist], s2 = item.querySelector('.slot');
+      if (s2.querySelector('.hist')) { s2.innerHTML = ''; return; }
+      s2.innerHTML = '<div class="hist">' + d2.loans.slice(0, 3).map(function (l) { return lineaHist(l, false); }).join('') +
+        (d2.loans.length > 3 ? '<div class="hmore">… ' + (d2.loans.length - 3) + ' más en «Historial de préstamos»</div>' : '') + '</div>';
+    } else if (b.dataset.borrar !== undefined) {
+      var ha = b.parentNode; ABIERTO = 'borrar';
+      ha.innerHTML = '<span class="bad">¿Borrar este registro?</span>' + (PIDECLAVE && !ls('claveLabMG') ? '<input class="dclave" type="password" placeholder="Clave del lab.">' : '') +
+        '<button class="bprim sm" data-confborr="' + esc(b.dataset.borrar) + '">Sí, borrar</button><button class="bsec sm" data-noborr="' + esc(b.dataset.borrar) + '">No</button><span class="fmsg"></span>';
+    } else if (b.dataset.noborr !== undefined) {
+      b.parentNode.innerHTML = '<button class="lnk del" data-borrar="' + esc(b.dataset.noborr) + '">Borrar</button>'; cerrarPaneles();
+    } else if (b.dataset.confborr !== undefined) {
+      var hb = b.parentNode, hm = hb.querySelector('.fmsg'), hc = hb.querySelector('.dclave');
+      b.disabled = true; hm.textContent = 'Borrando…';
+      enviar({ accion: 'borrar', id: b.dataset.confborr, claveLab: hc ? hc.value.trim() : '' })
+        .then(function (res) { ABIERTO = null; PENDIENTE = false; cargarPrestamos(res, true); })
+        .catch(function (e) { b.disabled = false; hm.textContent = e.message; });
+    } else if (b.dataset.reg !== undefined) {
+      var f = b.closest('form');
+      f.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('on', c === b); });
+      f.regresa.value = b.dataset.reg;
+    } else if (b.dataset.cerrar) {
+      b.closest('.slot').innerHTML = ''; cerrarPaneles();
+    } else if (b.dataset.dev !== undefined) {
+      var acc = b.parentNode, id = b.dataset.dev; ABIERTO = 'dev';
+      acc.innerHTML = (PIDECLAVE && !ls('claveLabMG') ? '<input class="dclave" type="password" placeholder="Clave del lab.">' : '') +
+        '<button class="bprim sm" data-conf="' + esc(id) + '">Confirmar devolución</button><button class="bsec sm" data-nodev="1">No</button><span class="fmsg"></span>';
+    } else if (b.dataset.nodev) {
+      var a2 = b.parentNode; a2.innerHTML = '<button class="lnk" data-dev="' + esc(a2.parentNode.dataset.id) + '">Ya lo devolvieron</button>'; cerrarPaneles();
+    } else if (b.dataset.conf !== undefined) {
+      var a3 = b.parentNode, msg = a3.querySelector('.fmsg'), ci = a3.querySelector('.dclave');
+      b.disabled = true; msg.textContent = 'Guardando…';
+      enviar({ accion: 'devolver', id: b.dataset.conf, por: ls('porMG'), claveLab: ci ? ci.value.trim() : '' })
+        .then(function (res) { ABIERTO = null; PENDIENTE = false; cargarPrestamos(res, true); })
+        .catch(function (e) { b.disabled = false; msg.textContent = e.message; });
+    }
+  });
+
+  document.getElementById('out').addEventListener('change', function (ev) {
+    if (ev.target.name === 'regresa') ev.target.closest('form').querySelectorAll('.chip').forEach(function (c) { c.classList.remove('on'); });
+  });
+
+  document.getElementById('out').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    var f = ev.target, d = GID[f.dataset.gid], msg = f.querySelector('.fmsg'), btn = f.querySelector('[type=submit]');
+    var val = function (n) { return f[n] ? f[n].value.trim() : ''; };
+    if (!val('laboratorio')) { msg.textContent = 'Falta el laboratorio'; return; }
+    btn.disabled = true; msg.textContent = 'Guardando…';
+    if (val('por')) ls('porMG', val('por'));
+    enviar({ accion: 'prestar', clave: d.k, reactivo: d.n, laboratorio: val('laboratorio'), cantidad: val('cantidad'),
+             quien: val('quien'), regresa: val('regresa'), por: val('por'), claveLab: val('claveLab') })
+      .then(function (res) { ABIERTO = null; PENDIENTE = false; cargarPrestamos(res, true); })
+      .catch(function (e) {
+        btn.disabled = false; msg.textContent = e.message;
+        if (/clave/i.test(e.message) && !f.claveLab) { var x = document.createElement('div'); x.innerHTML = campoClave(); f.insertBefore(x.firstChild, f.querySelector('.fbtns')); }
+      });
+  });
+
+  // Vista "Historial de préstamos": resumen por laboratorio + lista
+  function vistaHistorial(qraw, vars, lab, cat) {
+    var out = document.getElementById('out'), count = document.getElementById('count');
+    var lista = [];
+    DATA.forEach(function (d) {
+      if (lab && d.labs.indexOf(lab) < 0) return;
+      if (cat && d.cat !== cat) return;
+      if (vars.length && !vars.every(function (vs) { return vs.some(function (w) { var wc = compact(w); return d.t.indexOf(w) >= 0 || (wc && d.c.indexOf(wc) >= 0); }); })) return;
+      d.loans.forEach(function (l) { lista.push(l); });
+    });
+    lista.sort(function (a, b) { return a.fecha < b.fecha ? 1 : -1; });
+    count.textContent = lista.length + (lista.length === 1 ? ' préstamo' : ' préstamos');
+    if (!lista.length) { out.innerHTML = '<div class="empty">No hay préstamos registrados' + (qraw || lab || cat ? ' con estos filtros' : '') + '.</div>'; return; }
+    var porLab = {};
+    lista.forEach(function (l) {
+      var s = porLab[l.lab] = porLab[l.lab] || { n: 0, p: 0, v: 0 };
+      s.n++; if (!l.dev) s.p++; if (vencido(l)) s.v++;
+    });
+    var labs = Object.keys(porLab).sort(function (a, b) { return (porLab[b].v - porLab[a].v) || (porLab[b].p - porLab[a].p) || a.localeCompare(b); });
+    var h = '<div class="resumen"><div class="ftitle">Por laboratorio</div>' + labs.map(function (k) {
+      var s = porLab[k];
+      return '<div class="rrow"><b>' + esc(k) + '</b><span>' + s.n + (s.n === 1 ? ' préstamo' : ' préstamos') +
+        (s.p ? ' · <span class="pend">' + s.p + ' pendiente' + (s.p > 1 ? 's' : '') + '</span>' : '') +
+        (s.v ? ' · <span class="bad">' + s.v + ' vencido' + (s.v > 1 ? 's' : '') + '</span>' : '') + '</span></div>';
+    }).join('') + '</div>';
+    h += '<div class="hist big">' + lista.slice(0, 150).map(function (l) { return lineaHist(l, true); }).join('') + '</div>';
+    out.innerHTML = h;
+  }
+
   // Parámetros del enlace (?q=...&lab=...&cat=...)
   var PARAMS = {};
-  try { var sp = new URLSearchParams(location.search); PARAMS = { q: sp.get('q') || '', lab: sp.get('lab') || '', cat: sp.get('cat') || '' }; } catch (e) {}
+  try { var sp = new URLSearchParams(location.search); PARAMS = { q: sp.get('q') || '', lab: sp.get('lab') || '', cat: sp.get('cat') || '', p: sp.get('p') || '' }; } catch (e) {}
   document.getElementById('q').value = PARAMS.q || '';
   document.getElementById('lab').value = PARAMS.lab || '';
+  document.getElementById('pres').value = PARAMS.p || '';
 
   var timer;
   document.getElementById('q').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 120); });
   document.getElementById('lab').addEventListener('change', search);
   document.getElementById('cat').addEventListener('change', search);
+  document.getElementById('pres').addEventListener('change', search);
   document.getElementById('share').addEventListener('click', function () {
     var b = this, url = location.href;
     var ok = function () { b.textContent = '¡Enlace copiado!'; setTimeout(function () { b.textContent = 'Copiar enlace de esta búsqueda'; }, 1800); };
@@ -452,6 +704,13 @@
   // 1) muestra al instante la última copia guardada en este dispositivo
   var KEY = 'inventarioMolinaGroup';
   try { var c = localStorage.getItem(KEY); if (c) load(JSON.parse(c), true); } catch (e) {}
+
+  // Préstamos: última copia guardada y luego la versión al día
+  try { var cp = ls(KEYP); if (cp) cargarPrestamos(JSON.parse(cp), false); } catch (e) {}
+  fetch(API_BASE + '?formato=prestamos', { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (res) { cargarPrestamos(res, true); })
+    .catch(function () {});
 
   // 2) copia rápida directa de la hoja (≈1 s). Puede omitir algunas "Piezas" escritas como texto;
   //    la versión completa del paso 3 la reemplaza en cuanto llega.
