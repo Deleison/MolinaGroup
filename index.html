@@ -106,7 +106,9 @@
   .ok { color: var(--good); font-weight: 600; } .pend { color: var(--loan); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; }
   .resumen { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; display: grid; gap: 4px; }
   .rrow { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 14px; }
-  select[hidden] { display: none; }
+  .tbtn { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 14px; cursor: pointer; }
+  .tbtn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
+  .tbtn[hidden] { display: none; }
   .empty, .loading { padding: 28px; text-align: center; color: var(--muted); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
   .foot { margin-top: 28px; text-align: center; }
   .btn2 { display: inline-block; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--line); color: var(--accent);
@@ -127,7 +129,7 @@
     <div class="filters">
       <select id="lab"><option value="">Ambos laboratorios</option><option>1-6</option><option>2-1</option></select>
       <select id="cat"><option value="">Todas las categorías</option></select>
-      <select id="pres" hidden><option value="">Todos los reactivos</option><option value="ahora">Prestados ahora</option><option value="vencidos">Préstamos vencidos</option><option value="historial">Historial de préstamos</option></select>
+      <button id="pres" class="tbtn" type="button" aria-pressed="false" hidden>Historial de préstamos</button>
     </div>
   </div>
 
@@ -434,7 +436,7 @@
   function search() {
     var qraw = document.getElementById('q').value.trim();
     var lab = document.getElementById('lab').value, cat = document.getElementById('cat').value;
-    var modo = PREST_OK ? document.getElementById('pres').value : '';
+    var modo = PREST_OK && HIST ? 'historial' : '';
     var out = document.getElementById('out'), count = document.getElementById('count');
     ABIERTO = null; PENDIENTE = false;
     actualizarURL(qraw, lab, cat, modo);
@@ -684,13 +686,15 @@
   try { var sp = new URLSearchParams(location.search); PARAMS = { q: sp.get('q') || '', lab: sp.get('lab') || '', cat: sp.get('cat') || '', p: sp.get('p') || '' }; } catch (e) {}
   document.getElementById('q').value = PARAMS.q || '';
   document.getElementById('lab').value = PARAMS.lab || '';
-  document.getElementById('pres').value = PARAMS.p || '';
+  var HIST = PARAMS.p === 'historial';
+  function marcarHist() { var b = document.getElementById('pres'); b.setAttribute('aria-pressed', HIST ? 'true' : 'false'); b.textContent = HIST ? 'Historial de préstamos ✕' : 'Historial de préstamos'; }
+  marcarHist();
 
   var timer;
   document.getElementById('q').addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(search, 120); });
   document.getElementById('lab').addEventListener('change', search);
   document.getElementById('cat').addEventListener('change', search);
-  document.getElementById('pres').addEventListener('change', search);
+  document.getElementById('pres').addEventListener('click', function () { HIST = !HIST; marcarHist(); search(); });
   document.getElementById('share').addEventListener('click', function () {
     var b = this, url = location.href;
     var ok = function () { b.textContent = '¡Enlace copiado!'; setTimeout(function () { b.textContent = 'Copiar enlace de esta búsqueda'; }, 1800); };
