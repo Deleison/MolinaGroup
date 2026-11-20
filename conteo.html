@@ -26,128 +26,210 @@
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text);
          font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-  .wrap { max-width: 860px; margin: 0 auto; padding: 16px 14px 60px; }
-  .volver { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px; }
-  h1 { font-family: 'Titulo MG', 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 600; font-size: 26px; margin: 6px 0 2px; line-height: 1.15; }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 14px 14px 90px; }
+  a { color: var(--accent); }
+  .volver { text-decoration: none; font-weight: 600; font-size: 14px; }
+  h1 { font-family: 'Titulo MG', 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 600; font-size: 25px; margin: 6px 0 2px; line-height: 1.15; }
+  h2 { font-size: 18px; margin: 0; }
   .sub { color: var(--muted); font-size: 13px; }
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px; margin-top: 12px; }
   .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   input, select { font-size: 16px; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--input); color: var(--text); }
   input::placeholder { color: var(--ph); }
-  .grow { flex: 1; min-width: 150px; }
-  .estado { font-size: 13px; color: var(--muted); margin-top: 8px; }
-  .estado b { color: var(--text); }
+  .grow { flex: 1; min-width: 140px; }
+  .tabs { display: flex; gap: 6px; margin-top: 12px; }
+  .tab { flex: 1; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+  .tab.on { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; font-family: inherit; }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
+  .lnk { border: none; background: none; color: var(--accent); font: inherit; font-weight: 600; cursor: pointer; padding: 0; }
+  .estado { font-size: 13px; color: var(--muted); }
   .estado.pend b { color: var(--warn); }
-  /* bloques */
-  .bloques { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
-  .bloque { text-align: left; border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 12px; padding: 10px 12px; cursor: pointer; font: inherit; }
-  .bloque.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
-  .bloque .t { font-weight: 700; }
-  .bloque .s { font-size: 12px; color: var(--muted); }
   .barra { height: 6px; background: var(--chip); border-radius: 99px; margin-top: 6px; overflow: hidden; }
   .barra i { display: block; height: 100%; background: var(--ok); border-radius: 99px; }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
-  .chip.on { background: var(--accent); border-color: var(--accent); color: var(--bg); font-weight: 600; }
-  .titulo-lista { display: flex; justify-content: space-between; align-items: baseline; margin: 16px 2px 8px; gap: 8px; flex-wrap: wrap; }
-  .titulo-lista h2 { font-size: 18px; margin: 0; }
-  .lista { display: flex; flex-direction: column; gap: 8px; }
-  .sep { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin: 12px 2px 0; }
-  /* tarjetas */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin-top: 10px; }
+  .caja { text-align: left; border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 12px; padding: 10px 12px; cursor: pointer; font: inherit; }
+  .caja.on { border-color: var(--accent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent); }
+  .caja.mio { border-color: var(--accent); }
+  .caja.lleno { background: var(--ok-bg); border-color: var(--ok-line); }
+  .caja .t { font-weight: 700; }
+  .caja .s { font-size: 12px; color: var(--muted); }
+  .caja .p { font-size: 12px; color: var(--accent); font-weight: 600; margin-top: 2px; }
+  .cab { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 10px 0 8px; margin-top: 8px; border-bottom: 1px solid var(--line); }
+  .cab .row { justify-content: space-between; }
+  .sep { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin: 14px 2px 6px; }
+  .lista { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .vacio { padding: 22px; text-align: center; color: var(--muted); }
+  /* tarjeta de reactivo */
   .f { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
   .f.hecho { background: var(--ok-bg); border-color: var(--ok-line); }
-  .f.baja { background: var(--bad-bg); border-color: var(--bad); }
+  .f.parcial { border-color: var(--warn-line); }
+  .f.foco { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 45%, transparent); }
   .top { display: flex; gap: 10px; align-items: baseline; }
   .k { font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .n { font-weight: 600; flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .tag { font-size: 12px; padding: 1px 8px; border-radius: 99px; background: var(--chip); white-space: nowrap; }
-  .orig { font-size: 13px; color: var(--muted); margin-top: 2px; }
-  .res { font-size: 13px; margin-top: 6px; font-weight: 600; color: var(--ok); }
-  .f.baja .res { color: var(--bad); }
-  .acc { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-  .b { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 9px; padding: 9px 12px; font-size: 14px; font-weight: 600; cursor: pointer; }
-  .b.ok { background: var(--ok); border-color: var(--ok); color: #fff; flex: 1; min-width: 140px; }
+  .st { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 99px; white-space: nowrap; }
+  .st.ok { background: var(--ok); color: #fff; } .st.pa { background: var(--warn-bg); color: var(--warn); border: 1px solid var(--warn-line); }
+  .st.ba { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad); }
+  .pr { display: flex; justify-content: space-between; align-items: center; gap: 6px 10px; flex-wrap: wrap; padding: 7px 0; border-top: 1px dashed var(--line); margin-top: 7px; font-size: 14px; }
+  .pr .d { min-width: 0; }
+  .pr .c { font-size: 12.5px; color: var(--muted); }
+  .pr .c b { color: var(--text); }
+  .pr .c .okt { color: var(--ok); font-weight: 700; } .pr .c .bat { color: var(--bad); font-weight: 700; }
+  .pr .a { display: flex; gap: 6px; }
+  .b { border: 1px solid var(--line); background: var(--panel); color: var(--text); border-radius: 9px; padding: 8px 12px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .b.ok { background: var(--ok); border-color: var(--ok); color: #fff; }
   @media (prefers-color-scheme: dark) { .b.ok { color: #0d1a12; } }
   .b.bad { color: var(--bad); border-color: var(--bad); background: none; }
-  .b.lnk { border: none; background: none; color: var(--accent); padding: 4px 0; }
-  .edit { margin-top: 10px; padding: 10px; border: 1px dashed var(--line); border-radius: 10px; display: grid; gap: 10px; }
+  .b.full { width: 100%; margin-top: 8px; }
+  .acc { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+  .edit { margin-top: 8px; padding: 10px; border: 1px dashed var(--line); border-radius: 10px; display: grid; gap: 10px; background: var(--bg); }
   .lbl { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
-  .step { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+  .step { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
   .step button { width: 44px; height: 40px; border: none; background: var(--chip); color: var(--text); font-size: 20px; cursor: pointer; }
-  .step input { width: 64px; text-align: center; border: none; border-radius: 0; }
-  .vacio { padding: 24px; text-align: center; color: var(--muted); }
-  .nuevo-btn { margin-top: 12px; width: 100%; }
-  .flota { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 8px 14px; border-radius: 99px; font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none; }
-  .flota.on { opacity: .92; }
+  .step input { width: 60px; text-align: center; border: none; border-radius: 0; }
+  .aviso { font-size: 13px; color: var(--warn); background: var(--warn-bg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 6px 9px; }
+  .regs { margin-top: 6px; font-size: 12.5px; color: var(--muted); display: grid; gap: 2px; }
+  /* avance */
+  .kpi { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+  .kpi div { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+  .kpi b { display: block; font-size: 22px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  td, th { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--line); }
+  th { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .it { font-size: 14px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+  .it .sub { display: block; }
+  /* aviso flotante y guía */
+  .flota { position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 14px; border-radius: 12px; font-size: 14px;
+           display: none; align-items: center; gap: 14px; z-index: 20; max-width: 92vw; box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+  .flota.on { display: flex; }
+  .flota button { background: none; border: none; color: var(--accent); font-weight: 800; font-size: 14px; cursor: pointer; filter: brightness(1.3); }
+  .guia { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 30; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .guia[hidden] { display: none; }
+  .guia .box { background: var(--panel); color: var(--text); border-radius: 16px; padding: 18px; max-width: 420px; width: 100%; }
+  .guia ol { padding-left: 20px; margin: 10px 0 14px; display: grid; gap: 8px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <a class="volver" href="./">← Volver al inventario</a>
   <h1>Actualización de inventario · dic 2026</h1>
-  <div class="sub" id="sub">Cargando inventario…</div>
+  <div class="sub"><span id="sub">Cargando inventario…</span> · <button class="lnk" id="verGuia">¿Cómo funciona?</button></div>
 
   <div class="panel">
-    <div class="row">
-      <input id="por" class="grow" placeholder="Tu nombre (quién revisa)" autocomplete="name">
-      <input id="q" class="grow" type="search" placeholder="Buscar clave o nombre (ej. A-125)" autocomplete="off">
-    </div>
-    <div class="row" style="margin-top:8px">
-      <div class="chips" id="labs"><button class="chip on" data-lab="">Ambos labs</button><button class="chip" data-lab="1-6">1-6</button><button class="chip" data-lab="2-1">2-1</button></div>
-    </div>
-    <div class="estado" id="estado"></div>
+    <div class="row"><input id="por" class="grow" placeholder="Tu nombre (quién revisa)" autocomplete="name"></div>
+    <div class="estado" id="estado" style="margin-top:6px"></div>
   </div>
 
-  <div class="bloques" id="bloques"></div>
-
-  <div class="titulo-lista"><h2 id="titulo"></h2><span class="sub" id="cuenta"></span></div>
-  <div class="lista" id="lista"><div class="vacio">Cargando…</div></div>
-  <button class="b nuevo-btn" id="nuevo">+ Agregar reactivo que no está en la lista</button>
+  <div class="tabs"><button class="tab on" data-tab="contar">Contar</button><button class="tab" data-tab="avance">Avance de todos</button></div>
+  <div id="vista"></div>
 </div>
-<div class="flota" id="flota"></div>
+
+<div class="flota" id="flota"><span id="flotaTxt"></span><button id="flotaBtn" hidden>Deshacer</button></div>
+
+<div class="guia" id="guia" hidden><div class="box">
+  <h2>Cómo contar en 3 pasos</h2>
+  <ol>
+    <li><b>Escribe tu nombre</b> arriba (solo la primera vez).</li>
+    <li><b>Toma un lote</b>: elige el bloque (A, B, C…) y un grupo de 50 claves. Así nadie revisa lo mismo.</li>
+    <li><b>Por cada reactivo</b>: si todo coincide, toca <b>✓ Todo como está</b>. Si no, en cada tamaño de frasco usa <b>Encontré</b> (cuántos y cuánto queda) o <b>No está</b>. Si hay un tamaño que no aparece, usa <b>+ Otro tamaño</b>.</li>
+  </ol>
+  <p class="sub">Si te equivocas, toca <b>Deshacer</b> en el aviso de abajo. Si encuentras frascos de un reactivo que ya registró otra persona, revisa que no sea el mismo frasco antes de sumarlo.</p>
+  <button class="b ok full" id="cerrarGuia">Entendido</button>
+</div></div>
 
 <script>
   var API = 'https://script.google.com/macros/s/AKfycbzd0u9hGwlOWxvFpax4MNk5qxwiMw7r8cyLlFrZT0tt7KkL9A9VMW5uak-oVY8EWOZM/exec';
-  var BLOQUES = { A: 'Sólidos orgánicos', B: 'Sólidos inorgánicos', C: 'Líquidos orgánicos', D: 'Disolventes', E: 'Refrigerador', N: 'Nuevos' };
+  var BLOQUES = { A: 'Sólidos orgánicos', B: 'Sólidos inorgánicos', C: 'Líquidos orgánicos', D: 'Disolventes', E: 'Refrigerador' };
   var QUEDA = ['Lleno', '¾', '½', '¼', 'Casi vacío'];
-  var FRASCOS = [], CONTEO = {}, COLA = [], BLOQUE = 'A', LAB = '', ABIERTO = null, ENVIANDO = false;
+  var TAM_LOTE = 50;
+  var CARDS = [], CARD = {}, EV = [], ANUL = {}, LOTES = {}, COLA = [], ENVIANDO = false;
+  var TAB = 'contar', BLOQUE = 'A', LOTE = null, ABIERTO = null, FOCO = null, CARGADO = false;
 
+  // ---------- utilidades ----------
   function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch (e) { return ''; } }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function norm(s) { return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
-  function keyNum(k) { var m = /^([A-Z])-?(\d+)/i.exec(k); return m ? Number(m[2]) : 1e9; }
-  function aviso(t) { var f = document.getElementById('flota'); f.textContent = t; f.classList.add('on'); clearTimeout(aviso.t); aviso.t = setTimeout(function () { f.classList.remove('on'); }, 1600); }
-  function original(r) { return [r.cant, r.marca].filter(Boolean).join(' · ') + (r.pzas ? ' · ' + r.pzas + (/^\d+$/.test(r.pzas) ? (r.pzas === '1' ? ' pza' : ' pzas') : '') : ''); }
+  function numClave(k) { var m = /(\d+)/.exec(k); return m ? Number(m[1]) : 0; }
+  function nuevoId() { return 'E' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function por() { return document.getElementById('por').value.trim(); }
+  function plural(n, s, p) { return n + ' ' + (n === 1 ? s : p); }
+  function tam(p) { return [p.cant, p.marca].filter(Boolean).join(' · ') || 'sin dato'; }
+  function loteDe(c) { var i = c.num ? Math.floor((c.num - 1) / TAM_LOTE) : -1; return i < 0 ? c.b + ':otros' : c.b + ':' + (i * TAM_LOTE + 1) + '-' + (i + 1) * TAM_LOTE; }
+  function nombreLote(l) { var p = l.split(':'); return p[1] === 'otros' ? p[0] + ' · otras claves' : p[0] + '-' + p[1].replace('-', ' a ' + p[0] + '-'); }
 
-  // ---- datos ----
+  var flotaT;
+  function avisar(txt, ids) {
+    var f = document.getElementById('flota'), b = document.getElementById('flotaBtn');
+    document.getElementById('flotaTxt').textContent = txt;
+    b.hidden = !ids; b.onclick = ids ? function () { anular(ids); f.classList.remove('on'); } : null;
+    f.classList.add('on'); clearTimeout(flotaT); flotaT = setTimeout(function () { f.classList.remove('on'); }, ids ? 6000 : 2200);
+  }
+
+  // ---------- datos ----------
   function cargarInventario(res) {
-    FRASCOS = res.rows.filter(function (r) { return r[9]; }).map(function (r) {
-      var b = String(r[0]).trim().charAt(0).toUpperCase();
-      return { id: r[9], k: r[0], n: r[1], cas: r[2], cant: r[3], marca: r[4], pzas: r[5], lab: r[6], b: BLOQUES[b] && b !== 'N' ? b : (r[7] || '?').charAt(0), nota: r[8] };
-    });
-    document.getElementById('sub').textContent = FRASCOS.length + ' frascos en el inventario · datos del ' + res.actualizado;
-    pintar();
-  }
-  function cargarConteo(lista) {
     var m = {};
-    lista.forEach(function (c) { m[c[0]] = { estado: c[6], frascos: c[7], queda: c[8], notas: c[9], por: c[10], fecha: c[11], clave: c[1], reactivo: c[2], lab: c[3], bloque: c[4], cant: c[12], marca: c[13] }; });
-    COLA.forEach(function (p) { m[p.id] = p.vista; });   // lo que aún no se envía manda
-    CONTEO = m; ls('conteoMG', JSON.stringify(m));
+    res.rows.forEach(function (r) {
+      if (!r[9]) return;
+      var k = String(r[0]).trim(), lab = r[6] || '', id = k.toUpperCase() + '|' + lab;
+      var b = k.charAt(0).toUpperCase(); if (!BLOQUES[b]) b = String(r[7] || '?').charAt(0);
+      var c = m[id];
+      if (!c) { c = m[id] = { id: id, k: k, n: r[1], lab: lab, b: b, num: numClave(k), pres: [] }; }
+      var pz = /^\d+$/.test(String(r[5]).trim()) ? Number(r[5]) : 1;
+      c.pres.push({ id: r[9], cant: r[3], marca: r[4], pzas: pz, pzTxt: r[5], nota: r[8] });
+    });
+    CARDS = Object.keys(m).map(function (id) { var c = m[id]; c.lote = loteDe(c); return c; })
+      .sort(function (a, b) { return a.b < b.b ? -1 : a.b > b.b ? 1 : (a.num - b.num) || (a.lab < b.lab ? -1 : 1); });
+    CARD = m; CARGADO = true;
+    var frascos = CARDS.reduce(function (s, c) { return s + c.pres.length; }, 0);
+    document.getElementById('sub').textContent = plural(CARDS.length, 'reactivo', 'reactivos') + ' · ' + frascos + ' registros del inventario';
     pintar();
   }
-  function revisado(id) { var c = CONTEO[id]; return c && c.estado && c.estado !== 'Pendiente' ? c : null; }
-
-  // ---- envío con cola (funciona sin señal) ----
-  try { COLA = JSON.parse(ls('colaConteoMG') || '[]'); } catch (e) { COLA = []; }
-  function guardar(datos, vista) {
-    datos.accion = 'conteo'; datos.por = document.getElementById('por').value.trim();
-    vista.por = datos.por; vista.fecha = 'ahora';
-    COLA = COLA.filter(function (p) { return p.id !== datos.id; });
-    COLA.push({ id: datos.id, datos: datos, vista: vista });
-    CONTEO[datos.id] = vista;
-    ls('colaConteoMG', JSON.stringify(COLA));
-    pintar(); enviarCola();
+  function cargarConteo(res) {
+    EV = res.eventos || []; LOTES = res.lotes || {};
+    ls('conteo2MG', JSON.stringify(res)); pintar();
   }
+  // evento: [id, tipo, clave, reactivo, lab, bloque, pres, tamano, frascos, queda, notas, por, fecha]
+  function eventos() {
+    var pend = {};
+    COLA.forEach(function (p) { if (p.datos.accion === 'conteo') p.datos.eventos.forEach(function (e) { pend[e.id] = [e.id, e.tipo, e.clave, e.reactivo, e.lab, e.bloque, e.pres, e.tamano, e.frascos, e.queda, e.notas, p.datos.por, 'ahora']; }); });
+    COLA.forEach(function (p) { if (p.datos.accion === 'anular') p.datos.ids.forEach(function (i) { ANUL[i] = 1; }); });
+    var vistos = {}, out = [];
+    EV.concat(Object.keys(pend).map(function (k) { return pend[k]; })).forEach(function (e) { if (!vistos[e[0]] && !ANUL[e[0]]) { vistos[e[0]] = 1; out.push(e); } });
+    return out;
+  }
+  function indexar() {
+    var porCard = {};
+    eventos().forEach(function (e) { var id = String(e[2]).toUpperCase() + '|' + e[4]; (porCard[id] = porCard[id] || []).push(e); });
+    return porCard;
+  }
+  // Estado de un reactivo a partir de sus registros
+  function resumen(c, evs) {
+    evs = evs || [];
+    var r = { evs: evs, pres: [], otros: [], hay: evs.length > 0, completo: true, faltan: 0, baja: true, personas: {} };
+    c.pres.forEach(function (p) {
+      var enc = 0, no = [], quien = {}, qd = [];
+      evs.forEach(function (e) {
+        if (e[6] !== p.id) return;
+        if (e[1] === 'Encontrado') { enc += Number(e[8]) || 0; quien[e[11]] = 1; if (e[9]) qd.push(e[9]); }
+        if (e[1] === 'No está') no.push(e[11]);
+      });
+      var ok = enc >= p.pzas, cerrado = ok || no.length > 0;
+      if (!cerrado) { r.completo = false; r.faltan += p.pzas - enc; }
+      if (enc > 0) r.baja = false;
+      r.pres.push({ p: p, enc: enc, no: no, quien: Object.keys(quien), queda: qd, ok: ok, cerrado: cerrado });
+    });
+    evs.forEach(function (e) { r.personas[e[11]] = 1; if (e[1] === 'Otro tamaño') { r.otros.push(e); r.baja = false; } });
+    if (!r.hay) { r.completo = false; r.baja = false; }
+    r.estado = !r.hay ? 'pend' : r.completo ? (r.baja ? 'baja' : 'ok') : 'parcial';
+    return r;
+  }
+
+  // ---------- envío con cola (funciona sin señal) ----------
+  try { COLA = JSON.parse(ls('cola2MG') || '[]'); } catch (e) { COLA = []; }
+  function encolar(datos) { datos.por = por(); COLA.push({ datos: datos }); ls('cola2MG', JSON.stringify(COLA)); pintar(); enviarCola(); }
   function enviarCola() {
     estadoEnvio();
     if (ENVIANDO || !COLA.length) return;
@@ -157,182 +239,268 @@
       .then(function (r) { return r.json(); })
       .then(function (res) {
         if (!res.ok) throw new Error(res.mensaje || 'error');
-        COLA = COLA.filter(function (x) { return x !== p; }); ls('colaConteoMG', JSON.stringify(COLA));
+        if (p.datos.accion === 'conteo') p.datos.eventos.forEach(function (e) { EV.push([e.id, e.tipo, e.clave, e.reactivo, e.lab, e.bloque, e.pres, e.tamano, e.frascos, e.queda, e.notas, p.datos.por, 'ahora']); });
+        if (p.datos.accion === 'lote') { var l = (LOTES[p.datos.lote] || '').split(', ').filter(String).filter(function (x) { return x !== p.datos.por; }); if (p.datos.tomar) l.push(p.datos.por); LOTES[p.datos.lote] = l.join(', '); }
+        COLA.shift(); ls('cola2MG', JSON.stringify(COLA));
         ENVIANDO = false; enviarCola();
       })
       .catch(function () { ENVIANDO = false; estadoEnvio(true); setTimeout(enviarCola, 15000); });
   }
   function estadoEnvio(fallo) {
     var e = document.getElementById('estado');
-    if (COLA.length) { e.className = 'estado pend'; e.innerHTML = '<b>' + COLA.length + ' cambio' + (COLA.length > 1 ? 's' : '') + ' por enviar</b>' + (fallo ? ' · sin conexión, se reintentará solo' : ' · enviando…'); }
-    else { e.className = 'estado'; e.innerHTML = 'Todo guardado en la hoja «Conteo dic 2026».'; }
+    if (COLA.length) { e.className = 'estado pend'; e.innerHTML = '<b>' + plural(COLA.length, 'cambio', 'cambios') + ' por enviar</b>' + (fallo ? ' · sin conexión, se reintentará solo' : ' · enviando…'); }
+    else { e.className = 'estado'; e.textContent = por() ? 'Todo guardado. Revisando como ' + por() + '.' : 'Escribe tu nombre para empezar.'; }
   }
   addEventListener('online', enviarCola);
 
-  // ---- vista ----
-  function filtrados() {
-    var q = norm(document.getElementById('q').value.trim()), qc = q.replace(/[^a-z0-9]/g, '');
-    if (BLOQUE === 'N') {
-      return Object.keys(CONTEO).filter(function (id) { return CONTEO[id].estado === 'Nuevo'; }).map(function (id) {
-        var c = CONTEO[id]; return { id: id, k: c.clave || '(sin clave)', n: c.reactivo, lab: c.lab, cant: c.cant, marca: c.marca, pzas: c.frascos, b: 'N', nuevo: true };
-      }).filter(function (f) { return !LAB || f.lab === LAB; });
-    }
-    return FRASCOS.filter(function (f) {
-      if (LAB && f.lab !== LAB) return false;
-      if (q) return norm(f.k).replace(/[^a-z0-9]/g, '').indexOf(qc) === 0 || norm(f.n).indexOf(q) >= 0;
-      return f.b === BLOQUE;
-    }).sort(function (a, b) { return keyNum(a.k) - keyNum(b.k) || (a.lab < b.lab ? -1 : 1); });
+  function registrar(evs, txt) {
+    if (!por()) { avisar('Escribe tu nombre arriba primero'); document.getElementById('por').focus(); return; }
+    evs.forEach(function (e) { e.id = nuevoId(); });
+    encolar({ accion: 'conteo', eventos: evs });
+    avisar(txt, evs.map(function (e) { return e.id; }));
   }
-  function pintarBloques() {
-    var h = '';
-    ['A', 'B', 'C', 'D', 'E', 'N'].forEach(function (b) {
-      var fs = FRASCOS.filter(function (f) { return f.b === b && (!LAB || f.lab === LAB); });
-      var hechos = fs.filter(function (f) { return revisado(f.id); }).length;
-      var s, pct;
-      if (b === 'N') { var n = Object.keys(CONTEO).filter(function (id) { return CONTEO[id].estado === 'Nuevo'; }).length; s = n + ' agregado' + (n === 1 ? '' : 's'); pct = 0; }
-      else { s = hechos + ' / ' + fs.length + ' revisados'; pct = fs.length ? Math.round(100 * hechos / fs.length) : 0; }
-      h += '<button class="bloque' + (b === BLOQUE ? ' on' : '') + '" data-b="' + b + '"><div class="t">' + (b === 'N' ? 'Nuevos' : 'Reactivos ' + b) + '</div><div class="s">' + BLOQUES[b] + ' · ' + s + '</div>' +
-        (b === 'N' ? '' : '<div class="barra"><i style="width:' + pct + '%"></i></div>') + '</button>';
+  function anular(ids) {
+    ids.forEach(function (i) { ANUL[i] = 1; });
+    COLA = COLA.map(function (p) { if (p.datos.accion === 'conteo') p.datos.eventos = p.datos.eventos.filter(function (e) { return ids.indexOf(e.id) < 0; }); return p; })
+      .filter(function (p) { return p.datos.accion !== 'conteo' || p.datos.eventos.length; });
+    encolar({ accion: 'anular', ids: ids });
+    avisar('Deshecho');
+  }
+  function base(c, extra) { var e = { clave: c.k, reactivo: c.n, lab: c.lab, bloque: c.b }; for (var k in extra) e[k] = extra[k]; return e; }
+
+  // ---------- vistas ----------
+  function pintar() {
+    if (!CARGADO) { document.getElementById('vista').innerHTML = '<div class="vacio">Cargando…</div>'; return; }
+    estadoEnvio();
+    var idx = indexar();
+    document.getElementById('vista').innerHTML = TAB === 'avance' ? vistaAvance(idx) : (LOTE ? vistaLote(idx) : vistaInicio(idx));
+    if (FOCO) { var el = document.querySelector('.f[data-id="' + FOCO.replace(/"/g, '') + '"]'); if (el) el.scrollIntoView({ block: 'center' }); FOCO = null; }
+  }
+  function avanceLote(l, idx) {
+    var cs = CARDS.filter(function (c) { return c.lote === l; }), h = 0;
+    cs.forEach(function (c) { var r = resumen(c, idx[c.id]); if (r.completo) h++; });
+    return { total: cs.length, hechos: h };
+  }
+  function vistaInicio(idx) {
+    var yo = por(), h = '';
+    var mios = Object.keys(LOTES).filter(function (l) { return yo && LOTES[l].split(', ').indexOf(yo) >= 0; });
+    if (mios.length) h += '<div class="sep">Mis lotes</div><div class="chips">' + mios.map(function (l) { return '<button class="chip on" data-lote="' + l + '">' + nombreLote(l) + '</button>'; }).join('') + '</div>';
+    h += '<div class="panel"><input id="buscar" style="width:100%" type="search" placeholder="Buscar en todo el inventario: clave o nombre" autocomplete="off"><div id="resBuscar"></div></div>';
+    h += '<div class="sep">Bloque</div><div class="chips">' + Object.keys(BLOQUES).map(function (b) { return '<button class="chip' + (b === BLOQUE ? ' on' : '') + '" data-bloque="' + b + '">' + b + ' · ' + BLOQUES[b] + '</button>'; }).join('') +
+      '<button class="chip' + (BLOQUE === 'N' ? ' on' : '') + '" data-bloque="N">Nuevos</button></div>';
+    if (BLOQUE === 'N') return h + vistaNuevos();
+    var lotes = []; CARDS.forEach(function (c) { if (c.b === BLOQUE && lotes.indexOf(c.lote) < 0) lotes.push(c.lote); });
+    h += '<div class="sep">Lotes del bloque ' + BLOQUE + ' · elige uno para trabajar</div><div class="grid">';
+    lotes.forEach(function (l) {
+      var a = avanceLote(l, idx), pers = LOTES[l] || '', mio = yo && pers.split(', ').indexOf(yo) >= 0;
+      h += '<button class="caja' + (mio ? ' mio' : '') + (a.hechos === a.total ? ' lleno' : '') + '" data-lote="' + l + '"><div class="t">' + nombreLote(l) + '</div>' +
+        '<div class="s">' + a.hechos + ' / ' + a.total + ' revisados</div><div class="barra"><i style="width:' + Math.round(100 * a.hechos / Math.max(1, a.total)) + '%"></i></div>' +
+        '<div class="p">' + (pers ? esc(pers) : '<span class="sub">Libre</span>') + '</div></button>';
     });
-    document.getElementById('bloques').innerHTML = h;
+    return h + '</div><button class="b full" data-nuevo="1" style="margin-top:14px">+ Agregar reactivo que no está en la lista</button>';
   }
-  function tarjeta(f) {
-    var c = revisado(f.id), clase = c ? (c.estado === 'Baja' ? ' baja' : ' hecho') : '';
-    var h = '<div class="f' + clase + '" data-id="' + esc(f.id) + '"><div class="top"><span class="k">' + esc(f.k) + '</span><span class="n">' + esc(f.n) + '</span>' +
-      (f.lab ? '<span class="tag">' + esc(f.lab) + '</span>' : '') + '</div>' +
-      '<div class="orig">' + (f.nuevo ? 'Nuevo · ' : 'Registrado: ') + esc(original(f) || '—') + (f.nota ? ' · ' + esc(f.nota) : '') + '</div>';
-    if (c && !f.nuevo) {
-      var txt = c.estado === 'Sin cambios' ? '✓ Sin cambios' : c.estado === 'Baja' ? '✕ Dar de baja (no hay)' :
-        '✓ Actualizado: ' + [c.frascos ? c.frascos + (c.frascos === '1' ? ' frasco' : ' frascos') : '', c.queda ? 'queda ' + c.queda : '', c.notas].filter(Boolean).join(' · ');
-      h += '<div class="res">' + esc(txt) + (c.por ? ' <span class="sub">— ' + esc(c.por) + '</span>' : '') + '</div>' +
-        '<div class="acc"><button class="b lnk" data-cambiar="1">Corregir</button><button class="b lnk" data-deshacer="1">Deshacer</button></div>';
-    } else if (!f.nuevo) {
-      h += '<div class="acc"><button class="b ok" data-sin="1">✓ Sin cambios</button><button class="b" data-cambiar="1">Cambió…</button><button class="b bad" data-baja="1">No hay</button></div>';
-    } else {
-      h += '<div class="acc"><button class="b lnk" data-deshacer="1">Quitar</button></div>';
+  function vistaLote(idx) {
+    var yo = por(), pers = (LOTES[LOTE] || '').split(', ').filter(String), mio = yo && pers.indexOf(yo) >= 0;
+    var cs = CARDS.filter(function (c) { return c.lote === LOTE; });
+    var q = (document.getElementById('num') || {}).value || '';
+    var a = avanceLote(LOTE, idx);
+    var h = '<div class="cab"><div class="row"><button class="lnk" data-salir="1">← Lotes</button><span class="sub">' + (pers.length ? 'Trabajan: ' + esc(pers.join(', ')) : 'Nadie ha tomado este lote') + '</span></div>' +
+      '<div class="row" style="margin-top:6px"><h2>Lote ' + nombreLote(LOTE) + '</h2><b>' + a.hechos + ' / ' + a.total + '</b></div>' +
+      '<div class="barra"><i style="width:' + Math.round(100 * a.hechos / Math.max(1, a.total)) + '%"></i></div>' +
+      '<div class="row" style="margin-top:8px"><input id="num" class="grow" inputmode="numeric" placeholder="Número de clave (ej. ' + (cs[0] ? cs[0].num + 3 : 73) + ')" value="' + esc(q) + '" autocomplete="off">' +
+      (mio ? '<button class="b" data-soltar="1">Soltar lote</button>' : '<button class="b ok" data-tomar="1">Tomar este lote</button>') + '</div></div>';
+    var lista = cs;
+    if (q) { var n = Number(q); lista = cs.filter(function (c) { return String(c.num).indexOf(q) === 0; }).sort(function (x, y) { return (x.num === n ? 0 : 1) - (y.num === n ? 0 : 1) || x.num - y.num; }); }
+    var pend = [], parc = [], hech = [];
+    lista.forEach(function (c) { var r = resumen(c, idx[c.id]); (r.estado === 'pend' ? pend : r.estado === 'parcial' ? parc : hech).push([c, r]); });
+    if (!lista.length) h += '<div class="vacio">Ninguna clave coincide.</div>';
+    if (parc.length) h += '<div class="sep">Incompletos · faltan frascos</div><div class="lista">' + parc.map(tarjeta).join('') + '</div>';
+    if (pend.length) h += '<div class="sep">Pendientes</div><div class="lista">' + pend.map(tarjeta).join('') + '</div>';
+    if (hech.length) h += '<div class="sep">Ya revisados</div><div class="lista">' + hech.map(tarjeta).join('') + '</div>';
+    return h;
+  }
+  function tarjeta(cr) {
+    var c = cr[0], r = cr[1];
+    var st = r.estado === 'ok' ? '<span class="st ok">✓ Revisado</span>' : r.estado === 'baja' ? '<span class="st ba">Posible baja</span>' :
+      r.estado === 'parcial' ? '<span class="st pa">Faltan ' + r.faltan + '</span>' : '';
+    var h = '<div class="f' + (r.estado === 'ok' || r.estado === 'baja' ? ' hecho' : r.estado === 'parcial' ? ' parcial' : '') + '" data-id="' + esc(c.id) + '">' +
+      '<div class="top"><span class="k">' + esc(c.k) + '</span><span class="n">' + esc(c.n) + '</span>' + st + '<span class="tag">' + esc(c.lab) + '</span></div>';
+    r.pres.forEach(function (x, i) {
+      var cuenta = 'Registrado: <b>' + plural(x.p.pzas, 'frasco', 'frascos') + '</b>';
+      if (x.enc) cuenta += ' · <span class="okt">encontrados ' + x.enc + '</span>' + (x.queda.length ? ' (queda ' + esc(x.queda.join(', ')) + ')' : '') + ' — ' + esc(x.quien.join(', '));
+      if (x.no.length && !x.ok) cuenta += ' · <span class="bat">no está</span> — ' + esc(x.no.join(', '));
+      h += '<div class="pr"><div class="d">' + esc(tam(x.p)) + '<div class="c">' + cuenta + '</div></div>' +
+        '<div class="a"><button class="b" data-enc="' + i + '">Encontré</button>' + (x.cerrado ? '' : '<button class="b bad" data-no="' + i + '">No está</button>') + '</div></div>';
+      if (ABIERTO === c.id + '#' + i) h += editor(c, x);
+    });
+    r.otros.forEach(function (e) { h += '<div class="pr"><div class="d">Otro tamaño: ' + esc(e[7]) + '<div class="c"><span class="okt">' + plural(Number(e[8]) || 1, 'frasco', 'frascos') + '</span>' + (e[9] ? ' (queda ' + esc(e[9]) + ')' : '') + ' — ' + esc(e[11]) + '</div></div></div>'; });
+    if (ABIERTO === c.id + '#otro') h += editorOtro();
+    h += '<div class="acc">' + (!r.hay ? '<button class="b ok" data-todo="1">✓ Todo como está</button>' : '') + '<button class="lnk" data-otro="1">+ Otro tamaño</button></div>';
+    if (r.hay) {
+      var mios = r.evs.filter(function (e) { return e[11] === por(); });
+      if (mios.length) h += '<div class="regs">Tus registros: ' + mios.map(function (e) { return esc(e[1] + (e[8] ? ' ' + e[8] : '') + (e[7] ? ' · ' + e[7] : '')) + ' <button class="lnk" data-anular="' + e[0] + '">Deshacer</button>'; }).join(' · ') + '</div>';
     }
-    if (ABIERTO === f.id) h += editor(f, c);
     return h + '</div>';
   }
-  function editor(f, c) {
-    var n = c && c.frascos ? c.frascos : (/^\d+$/.test(f.pzas || '') ? f.pzas : '1');
-    var q = c && c.queda || '';
-    return '<div class="edit"><div><div class="lbl">Número de frascos</div><div class="step"><button data-menos="1">−</button><input name="frascos" inputmode="numeric" value="' + esc(n) + '"><button data-mas="1">+</button></div></div>' +
-      '<div><div class="lbl">¿Cuánto queda? (del frasco abierto)</div><div class="chips">' + QUEDA.map(function (x) { return '<button class="chip' + (x === q ? ' on' : '') + '" data-queda="' + x + '">' + x + '</button>'; }).join('') + '</div></div>' +
-      '<div><div class="lbl">Notas (opcional)</div><input name="notas" style="width:100%" placeholder="ej. cambió de anaquel, etiqueta dañada" value="' + esc(c && c.notas || '') + '"></div>' +
+  function editor(c, x) {
+    var falta = Math.max(1, x.p.pzas - x.enc);
+    var h = '<div class="edit">';
+    if (x.enc >= x.p.pzas) h += '<div class="aviso">Ya se registraron ' + x.enc + ' de ' + x.p.pzas + ' (' + esc(x.quien.join(', ')) + '). Suma solo si es un frasco distinto.</div>';
+    h += '<div><div class="lbl">¿Cuántos frascos de ' + esc(tam(x.p)) + ' encontraste?</div><div class="step"><button data-menos="1">−</button><input name="frascos" inputmode="numeric" value="' + falta + '"><button data-mas="1">+</button></div></div>' +
+      '<div><div class="lbl">¿Cuánto queda? (opcional, del frasco abierto)</div><div class="chips">' + QUEDA.map(function (q) { return '<button class="chip" data-queda="' + q + '">' + q + '</button>'; }).join('') + '</div></div>' +
+      '<div><div class="lbl">Notas (opcional)</div><input name="notas" style="width:100%" placeholder="ej. estaba en el anaquel 3, etiqueta dañada"></div>' +
       '<div class="acc"><button class="b ok" data-guardar="1">Guardar</button><button class="b" data-cerrar="1">Cancelar</button></div></div>';
+    return h;
   }
-  function pintar() {
-    if (!FRASCOS.length) return;
-    pintarBloques();
-    var q = document.getElementById('q').value.trim();
-    var lista = filtrados();
-    var pend = lista.filter(function (f) { return f.nuevo || !revisado(f.id); }), hech = lista.filter(function (f) { return !f.nuevo && revisado(f.id); });
-    document.getElementById('titulo').textContent = q ? 'Resultados de «' + q + '»' : (BLOQUE === 'N' ? 'Reactivos nuevos' : 'Reactivos ' + BLOQUE + ' · ' + BLOQUES[BLOQUE]);
-    document.getElementById('cuenta').textContent = BLOQUE === 'N' && !q ? lista.length + ' agregados' : pend.length + ' pendientes · ' + hech.length + ' revisados';
-    var h = '';
-    if (!lista.length) h = '<div class="vacio">' + (BLOQUE === 'N' && !q ? 'Aún no se agregan reactivos nuevos.' : 'Nada que mostrar.') + '</div>';
-    h += pend.map(tarjeta).join('');
-    if (hech.length) h += '<div class="sep">Ya revisados</div>' + hech.map(tarjeta).join('');
-    document.getElementById('lista').innerHTML = h;
+  function editorOtro() {
+    return '<div class="edit"><div class="lbl" style="font-weight:700;color:var(--text)">Frasco de un tamaño que no está registrado</div>' +
+      '<div class="row"><input name="cant" class="grow" placeholder="Cantidad (ej. 500 mL)"><input name="marca" class="grow" placeholder="Marca"></div>' +
+      '<div><div class="lbl">Frascos</div><div class="step"><button data-menos="1">−</button><input name="frascos" inputmode="numeric" value="1"><button data-mas="1">+</button></div></div>' +
+      '<div><div class="lbl">¿Cuánto queda? (opcional)</div><div class="chips">' + QUEDA.map(function (q) { return '<button class="chip" data-queda="' + q + '">' + q + '</button>'; }).join('') + '</div></div>' +
+      '<input name="notas" placeholder="Notas (opcional)">' +
+      '<div class="acc"><button class="b ok" data-guardarotro="1">Guardar</button><button class="b" data-cerrar="1">Cancelar</button></div></div>';
+  }
+  function vistaNuevos() {
+    var ns = eventos().filter(function (e) { return e[1] === 'Nuevo'; });
+    var h = '<button class="b full" data-nuevo="1" style="margin-top:12px">+ Agregar reactivo que no está en la lista</button><div id="formNuevo"></div>';
+    h += '<div class="sep">' + plural(ns.length, 'reactivo nuevo registrado', 'reactivos nuevos registrados') + '</div><div class="lista">';
+    h += ns.map(function (e) {
+      return '<div class="f"><div class="top"><span class="n">' + esc(e[3]) + '</span><span class="tag">' + esc(e[5]) + '</span><span class="tag">' + esc(e[4]) + '</span></div>' +
+        '<div class="sub">' + esc([e[7], plural(Number(e[8]) || 1, 'frasco', 'frascos'), e[9] ? 'queda ' + e[9] : '', e[10]].filter(Boolean).join(' · ')) + ' — ' + esc(e[11]) +
+        (e[11] === por() ? ' · <button class="lnk" data-anular="' + e[0] + '">Quitar</button>' : '') + '</div></div>';
+    }).join('');
+    return h + '</div>';
+  }
+  function formNuevoHTML() {
+    return '<div class="panel"><div class="lbl" style="font-weight:700;color:var(--text)">Reactivo que no está en la lista</div><div style="display:grid;gap:8px">' +
+      '<input name="nombre" placeholder="Nombre del reactivo *"><div class="row"><select name="bloque">' + Object.keys(BLOQUES).map(function (b) { return '<option value="' + b + '"' + (b === BLOQUE ? ' selected' : '') + '>' + b + ' · ' + BLOQUES[b] + '</option>'; }).join('') + '</select>' +
+      '<select name="lab"><option value="1-6">Lab 1-6</option><option value="2-1">Lab 2-1</option></select></div>' +
+      '<div class="row"><input name="cant" class="grow" placeholder="Cantidad (ej. 25 g)"><input name="marca" class="grow" placeholder="Marca"><input name="frascos" style="width:90px" inputmode="numeric" placeholder="Frascos" value="1"></div>' +
+      '<input name="notas" placeholder="Ubicación o notas (opcional)"><div class="acc"><button class="b ok" data-guardarnuevo="1">Agregar</button><button class="b" data-cancelarnuevo="1">Cancelar</button></div></div></div>';
+  }
+  function vistaAvance(idx) {
+    var tot = CARDS.length, hechos = 0, porB = {}, bajas = [], parciales = [], otros = [], notas = [], personas = {};
+    CARDS.forEach(function (c) {
+      var r = resumen(c, idx[c.id]); var B = porB[c.b] = porB[c.b] || { t: 0, h: 0 }; B.t++;
+      if (r.completo) { hechos++; B.h++; }
+      if (r.estado === 'parcial') parciales.push([c, r]);
+      r.pres.forEach(function (x) { if (x.no.length && !x.ok) bajas.push([c, x]); });
+    });
+    eventos().forEach(function (e) {
+      var p = personas[e[11]] = personas[e[11]] || { frascos: 0, reactivos: {} };
+      if (e[1] !== 'No está') p.frascos += Number(e[8]) || 0;
+      p.reactivos[e[2] + e[4]] = 1;
+      if (e[1] === 'Otro tamaño') otros.push(e);
+      if (e[10] && e[1] !== 'Nuevo') notas.push(e);
+    });
+    var nuevos = eventos().filter(function (e) { return e[1] === 'Nuevo'; });
+    var h = '<div class="sep">Avance general</div><div class="kpi"><div><b>' + Math.round(100 * hechos / Math.max(1, tot)) + ' %</b><span class="sub">' + hechos + ' de ' + tot + ' reactivos revisados</span></div>' +
+      '<div><b>' + parciales.length + '</b><span class="sub">incompletos (faltan frascos)</span></div><div><b>' + bajas.length + '</b><span class="sub">frascos no encontrados</span></div>' +
+      '<div><b>' + nuevos.length + '</b><span class="sub">reactivos nuevos</span></div></div>';
+    h += '<div class="sep">Por bloque</div><div class="panel">' + Object.keys(BLOQUES).map(function (b) {
+      var B = porB[b] || { t: 0, h: 0 };
+      return '<div style="margin:6px 0"><div class="row" style="justify-content:space-between"><b>' + b + ' · ' + BLOQUES[b] + '</b><span class="sub">' + B.h + ' / ' + B.t + '</span></div><div class="barra"><i style="width:' + Math.round(100 * B.h / Math.max(1, B.t)) + '%"></i></div></div>';
+    }).join('') + '</div>';
+    var ps = Object.keys(personas).sort(function (a, b) { return personas[b].frascos - personas[a].frascos; });
+    h += '<div class="sep">Por persona</div><div class="panel">' + (ps.length ? '<table><tr><th>Persona</th><th>Frascos registrados</th><th>Reactivos</th></tr>' +
+      ps.map(function (p) { return '<tr><td>' + esc(p) + '</td><td>' + personas[p].frascos + '</td><td>' + Object.keys(personas[p].reactivos).length + '</td></tr>'; }).join('') + '</table>' : '<span class="sub">Aún no hay registros.</span>') + '</div>';
+    h += '<div class="sep">Lotes en curso</div><div class="panel">' + (Object.keys(LOTES).filter(function (l) { return LOTES[l]; }).sort().map(function (l) {
+      var a = avanceLote(l, idx); return '<div class="it">' + nombreLote(l) + ' · ' + a.hechos + '/' + a.total + '<span class="sub">' + esc(LOTES[l]) + '</span></div>';
+    }).join('') || '<span class="sub">Nadie ha tomado lotes todavía.</span>') + '</div>';
+    function lista(t, arr, fn) { return '<div class="sep">' + t + ' (' + arr.length + ')</div><div class="panel">' + (arr.length ? arr.map(fn).join('') : '<span class="sub">Ninguno.</span>') + '</div>'; }
+    h += lista('Frascos no encontrados (posibles bajas)', bajas, function (b) { return '<div class="it"><b>' + esc(b[0].k) + '</b> ' + esc(b[0].n) + ' · ' + esc(tam(b[1].p)) + ' · ' + esc(b[0].lab) + '<span class="sub">Encontrados ' + b[1].enc + ' de ' + b[1].p.pzas + ' · marcó: ' + esc(b[1].no.join(', ')) + '</span></div>'; });
+    h += lista('Incompletos', parciales, function (x) { return '<div class="it"><b>' + esc(x[0].k) + '</b> ' + esc(x[0].n) + ' · ' + esc(x[0].lab) + '<span class="sub">Faltan ' + x[1].faltan + ' · registró: ' + esc(Object.keys(x[1].personas).join(', ')) + '</span></div>'; });
+    h += lista('Otros tamaños encontrados', otros, function (e) { return '<div class="it"><b>' + esc(e[2]) + '</b> ' + esc(e[3]) + ' · ' + esc(e[7]) + ' · ' + plural(Number(e[8]) || 1, 'frasco', 'frascos') + '<span class="sub">' + esc(e[11]) + '</span></div>'; });
+    h += lista('Reactivos nuevos', nuevos, function (e) { return '<div class="it">' + esc([e[3], e[7], 'bloque ' + e[5], e[4]].filter(Boolean).join(' · ')) + '<span class="sub">' + esc(e[11]) + '</span></div>'; });
+    h += lista('Notas', notas, function (e) { return '<div class="it"><b>' + esc(e[2]) + '</b> ' + esc(e[3]) + ': ' + esc(e[10]) + '<span class="sub">' + esc(e[11]) + '</span></div>'; });
+    return h;
   }
 
-  // ---- eventos ----
-  document.getElementById('bloques').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-b]'); if (!b) return;
-    BLOQUE = b.dataset.b; ABIERTO = null; document.getElementById('q').value = ''; pintar(); scrollTo(0, document.getElementById('titulo').offsetTop - 10);
+  // ---------- eventos de la interfaz ----------
+  document.querySelector('.tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-tab]'); if (!b) return;
+    TAB = b.dataset.tab; this.querySelectorAll('.tab').forEach(function (t) { t.classList.toggle('on', t === b); }); pintar(); scrollTo(0, 0);
   });
-  document.getElementById('labs').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-lab]'); if (!b) return;
-    LAB = b.dataset.lab; this.querySelectorAll('.chip').forEach(function (c) { c.classList.toggle('on', c === b); }); pintar();
-  });
-  var t; document.getElementById('q').addEventListener('input', function () { clearTimeout(t); t = setTimeout(pintar, 150); });
   document.getElementById('por').value = ls('porMG');
-  document.getElementById('por').addEventListener('change', function () { ls('porMG', this.value.trim()); });
-
-  function datosBase(f) { return { id: f.id, clave: f.k, reactivo: f.n, lab: f.lab, bloque: f.b, original: original(f) }; }
-  function pedirNombre() {
-    if (document.getElementById('por').value.trim()) return true;
-    aviso('Escribe tu nombre arriba primero'); document.getElementById('por').focus(); return false;
-  }
-  document.getElementById('lista').addEventListener('click', function (e) {
+  document.getElementById('por').addEventListener('change', function () { ls('porMG', this.value.trim()); estadoEnvio(); });
+  var tq;
+  document.getElementById('vista').addEventListener('input', function (e) {
+    if (e.target.id === 'num') { clearTimeout(tq); tq = setTimeout(function () { var v = e.target.value; pintar(); var n = document.getElementById('num'); n.focus(); n.setSelectionRange(v.length, v.length); }, 250); }
+    if (e.target.id === 'buscar') {
+      clearTimeout(tq); var q = norm(e.target.value.trim()), qc = q.replace(/[^a-z0-9]/g, '');
+      tq = setTimeout(function () {
+        var res = !q ? [] : CARDS.filter(function (c) { return norm(c.k).replace(/[^a-z0-9]/g, '') === qc || norm(c.n).indexOf(q) >= 0; }).slice(0, 12);
+        document.getElementById('resBuscar').innerHTML = res.map(function (c) { return '<div class="it"><button class="lnk" data-ir="' + esc(c.id) + '">' + esc(c.k) + '</button> ' + esc(c.n) + ' · ' + esc(c.lab) + ' <span class="sub">lote ' + nombreLote(c.lote) + '</span></div>'; }).join('') || (q ? '<div class="sub" style="margin-top:6px">Sin resultados.</div>' : '');
+      }, 200);
+    }
+  });
+  document.getElementById('vista').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
-    var card = b.closest('.f'), id = card.dataset.id;
-    var f = FRASCOS.find(function (x) { return x.id === id; }) || { id: id, nuevo: true };
-    if (b.dataset.sin) {
-      if (!pedirNombre()) return;
-      var d = datosBase(f); d.estado = 'Sin cambios';
-      guardar(d, { estado: 'Sin cambios' }); aviso(f.k + ' ✓');
-    } else if (b.dataset.baja) {
-      if (!pedirNombre()) return;
-      if (!b.dataset.confirmar) { b.dataset.confirmar = 1; b.textContent = '¿Seguro? Dar de baja'; setTimeout(function () { if (b.isConnected) { delete b.dataset.confirmar; b.textContent = 'No hay'; } }, 4000); return; }
-      var d2 = datosBase(f); d2.estado = 'Baja';
-      guardar(d2, { estado: 'Baja' }); aviso(f.k + ' marcado para baja');
-    } else if (b.dataset.cambiar) {
-      ABIERTO = ABIERTO === id ? null : id; pintar();
-    } else if (b.dataset.cerrar) {
-      ABIERTO = null; pintar();
-    } else if (b.dataset.menos || b.dataset.mas) {
-      var inp = card.querySelector('input[name=frascos]'), v = parseInt(inp.value, 10) || 0;
-      inp.value = Math.max(0, v + (b.dataset.mas ? 1 : -1));
-    } else if (b.dataset.queda) {
-      var on = !b.classList.contains('on');
-      b.parentNode.querySelectorAll('.chip').forEach(function (c) { c.classList.remove('on'); });
-      if (on) b.classList.add('on');
-    } else if (b.dataset.guardar) {
-      if (!pedirNombre()) return;
-      var fr = card.querySelector('input[name=frascos]').value.trim(), qd = card.querySelector('.chip.on'), nt = card.querySelector('input[name=notas]').value.trim();
-      var d3 = datosBase(f);
-      d3.estado = fr === '0' ? 'Baja' : 'Actualizado'; d3.frascos = fr; d3.queda = qd ? qd.dataset.queda : ''; d3.notas = nt;
+    var d = b.dataset, card = b.closest('.f'), c = card ? CARD[card.dataset.id] : null;
+    if (d.bloque) { BLOQUE = d.bloque; pintar(); }
+    else if (d.lote) { LOTE = d.lote; ABIERTO = null; pintar(); scrollTo(0, 0); }
+    else if (d.salir) { LOTE = null; ABIERTO = null; pintar(); }
+    else if (d.ir) { var cc = CARD[d.ir]; LOTE = cc.lote; BLOQUE = cc.b; FOCO = cc.id; pintar(); var el = document.querySelector('.f[data-id="' + cc.id + '"]'); if (el) el.classList.add('foco'); }
+    else if (d.tomar || d.soltar) {
+      if (!por()) { avisar('Escribe tu nombre arriba primero'); document.getElementById('por').focus(); return; }
+      var l = (LOTES[LOTE] || '').split(', ').filter(String).filter(function (x) { return x !== por(); }); if (d.tomar) l.push(por()); LOTES[LOTE] = l.join(', ');
+      encolar({ accion: 'lote', lote: LOTE, tomar: !!d.tomar }); avisar(d.tomar ? 'Tomaste el lote ' + nombreLote(LOTE) : 'Soltaste el lote');
+    }
+    else if (d.todo) {
+      var r = resumen(c, indexar()[c.id]);
+      registrar(r.pres.map(function (x) { return base(c, { tipo: 'Encontrado', pres: x.p.id, tamano: tam(x.p), frascos: String(x.p.pzas) }); }), c.k + ' ✓ todo como está');
+    }
+    else if (d.enc !== undefined) { ABIERTO = ABIERTO === c.id + '#' + d.enc ? null : c.id + '#' + d.enc; pintar(); }
+    else if (d.no !== undefined) {
+      if (!b.dataset.confirmar) { b.dataset.confirmar = 1; b.textContent = '¿Seguro?'; setTimeout(function () { if (b.isConnected) { delete b.dataset.confirmar; b.textContent = 'No está'; } }, 4000); return; }
+      var p = c.pres[Number(d.no)];
+      registrar([base(c, { tipo: 'No está', pres: p.id, tamano: tam(p), frascos: '0' })], c.k + ' · ' + tam(p) + ': no está');
+    }
+    else if (d.otro) { ABIERTO = ABIERTO === c.id + '#otro' ? null : c.id + '#otro'; pintar(); }
+    else if (d.cerrar) { ABIERTO = null; pintar(); }
+    else if (d.menos || d.mas) { var inp = b.parentNode.querySelector('input'); inp.value = Math.max(1, (parseInt(inp.value, 10) || 0) + (d.mas ? 1 : -1)); }
+    else if (d.queda) { var on = !b.classList.contains('on'); b.parentNode.querySelectorAll('.chip').forEach(function (x) { x.classList.remove('on'); }); if (on) b.classList.add('on'); }
+    else if (d.guardar) {
+      var ed = b.closest('.edit'), i = Number(ABIERTO.split('#')[1]), p2 = c.pres[i], qd = ed.querySelector('.chip.on');
+      var n = ed.querySelector('[name=frascos]').value.trim() || '1';
       ABIERTO = null;
-      guardar(d3, { estado: d3.estado, frascos: fr, queda: d3.queda, notas: nt }); aviso(f.k + ' actualizado');
-    } else if (b.dataset.deshacer) {
-      var c = CONTEO[id] || {};
-      var d4 = f.nuevo ? { id: id, clave: c.clave, reactivo: c.reactivo, lab: c.lab, bloque: c.bloque, original: '' } : datosBase(f);
-      d4.estado = 'Pendiente';
-      guardar(d4, { estado: 'Pendiente', clave: c.clave, reactivo: c.reactivo, lab: c.lab }); aviso('Deshecho');
+      registrar([base(c, { tipo: 'Encontrado', pres: p2.id, tamano: tam(p2), frascos: n, queda: qd ? qd.dataset.queda : '', notas: ed.querySelector('[name=notas]').value.trim() })], c.k + ' · ' + plural(Number(n), 'frasco', 'frascos') + ' registrado' + (n === '1' ? '' : 's'));
+    }
+    else if (d.guardarotro) {
+      var eo = b.closest('.edit'), g = function (k) { return eo.querySelector('[name=' + k + ']').value.trim(); }, q2 = eo.querySelector('.chip.on');
+      if (!g('cant') && !g('marca')) { avisar('Escribe la cantidad o la marca'); return; }
+      ABIERTO = null;
+      registrar([base(c, { tipo: 'Otro tamaño', pres: 'otro', tamano: [g('cant'), g('marca')].filter(Boolean).join(' · '), frascos: g('frascos') || '1', queda: q2 ? q2.dataset.queda : '', notas: g('notas') })], c.k + ' · otro tamaño registrado');
+    }
+    else if (d.anular) { anular([d.anular]); }
+    else if (d.nuevo) {
+      if (BLOQUE !== 'N') { BLOQUE = 'N'; pintar(); }
+      var box = document.getElementById('formNuevo'); box.innerHTML = box.innerHTML ? '' : formNuevoHTML();
+      var nm = box.querySelector('[name=nombre]'); if (nm) nm.focus();
+    }
+    else if (d.cancelarnuevo) { document.getElementById('formNuevo').innerHTML = ''; }
+    else if (d.guardarnuevo) {
+      var fb = document.getElementById('formNuevo'), gn = function (k) { return fb.querySelector('[name=' + k + ']').value.trim(); };
+      if (!gn('nombre')) { avisar('Falta el nombre'); return; }
+      registrar([{ tipo: 'Nuevo', clave: '', reactivo: gn('nombre'), lab: gn('lab'), bloque: gn('bloque'), pres: 'nuevo', tamano: [gn('cant'), gn('marca')].filter(Boolean).join(' · '), frascos: gn('frascos') || '1', notas: gn('notas') }], 'Reactivo nuevo agregado');
     }
   });
 
-  // Nuevo reactivo
-  document.getElementById('nuevo').addEventListener('click', function () {
-    if (!pedirNombre()) return;
-    var box = document.getElementById('formNuevo');
-    if (box) { box.remove(); return; }
-    var div = document.createElement('div');
-    div.id = 'formNuevo'; div.className = 'panel';
-    div.innerHTML = '<div class="lbl" style="font-weight:700;color:var(--text)">Reactivo que no está en la lista</div>' +
-      '<div style="display:grid;gap:8px"><input name="nombre" placeholder="Nombre del reactivo *">' +
-      '<div class="row"><select name="bloque">' + ['A', 'B', 'C', 'D', 'E'].map(function (b) { return '<option value="' + b + '"' + (b === BLOQUE ? ' selected' : '') + '>' + b + ' · ' + BLOQUES[b] + '</option>'; }).join('') + '</select>' +
-      '<select name="lab"><option value="1-6">Lab 1-6</option><option value="2-1">Lab 2-1</option></select></div>' +
-      '<div class="row"><input name="cantidad" class="grow" placeholder="Cantidad (ej. 25 g)"><input name="marca" class="grow" placeholder="Marca"><input name="frascos" style="width:90px" inputmode="numeric" placeholder="Frascos" value="1"></div>' +
-      '<input name="notas" placeholder="Ubicación o notas (opcional)">' +
-      '<div class="acc"><button class="b ok" id="guardarNuevo">Agregar</button><button class="b" id="cancelarNuevo">Cancelar</button></div></div>';
-    this.after(div);
-    div.querySelector('[name=nombre]').focus();
-    div.querySelector('#cancelarNuevo').onclick = function () { div.remove(); };
-    div.querySelector('#guardarNuevo').onclick = function () {
-      var g = function (n) { return div.querySelector('[name=' + n + ']').value.trim(); };
-      if (!g('nombre')) { aviso('Falta el nombre'); return; }
-      var id = 'N' + Date.now();
-      var d = { id: id, clave: '', reactivo: g('nombre'), lab: g('lab'), bloque: g('bloque'), original: '', estado: 'Nuevo',
-                frascos: g('frascos'), cantidad: g('cantidad'), marca: g('marca'), notas: g('notas') };
-      guardar(d, { estado: 'Nuevo', clave: '', reactivo: d.reactivo, lab: d.lab, bloque: d.bloque, frascos: d.frascos, cant: d.cantidad, marca: d.marca, notas: d.notas });
-      div.remove(); aviso('Agregado a «Nuevos»');
-    };
-  });
+  // guía de la primera vez
+  function guia(abrir) { document.getElementById('guia').hidden = !abrir; }
+  document.getElementById('verGuia').onclick = function () { guia(true); };
+  document.getElementById('cerrarGuia').onclick = function () { guia(false); ls('guiaConteoMG', '1'); };
+  if (!ls('guiaConteoMG')) guia(true);
 
-  // ---- carga ----
-  try { var cc = ls('conteoMG'); if (cc) CONTEO = JSON.parse(cc); } catch (e) {}
-  COLA.forEach(function (p) { CONTEO[p.id] = p.vista; });
-  try { var ci = ls('inventarioMolinaGroup'); if (ci) { var r0 = JSON.parse(ci); if (r0.rows && r0.rows[0] && r0.rows[0][9]) cargarInventario(r0); } } catch (e) {}
-  fetch(API + '?formato=json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(cargarInventario)
-    .catch(function () { if (!FRASCOS.length) document.getElementById('lista').innerHTML = '<div class="vacio">No se pudo cargar el inventario. Revisa la conexión y recarga.</div>'; });
-  function actualizarConteo() {
-    fetch(API + '?formato=conteo', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (res) { cargarConteo(res.conteo || []); }).catch(function () {});
-  }
-  actualizarConteo();
-  setInterval(function () { if (!ABIERTO && !document.getElementById('formNuevo')) actualizarConteo(); }, 60000);   // ver lo que marcan los demás
+  // ---------- carga ----------
+  try { var c0 = ls('conteo2MG'); if (c0) { var r0 = JSON.parse(c0); EV = r0.eventos || []; LOTES = r0.lotes || {}; } } catch (e) {}
+  try { var ci = ls('inventarioMolinaGroup'); if (ci) { var i0 = JSON.parse(ci); if (i0.rows && i0.rows[0] && i0.rows[0][9]) cargarInventario(i0); } } catch (e) {}
+  pintar();
+  fetch(API + '?formato=json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (res) { ls('inventarioMolinaGroup', JSON.stringify(res)); cargarInventario(res); })
+    .catch(function () { if (!CARGADO) document.getElementById('vista').innerHTML = '<div class="vacio">No se pudo cargar el inventario. Revisa la conexión y recarga.</div>'; });
+  function refrescar() { fetch(API + '?formato=conteo', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(cargarConteo).catch(function () {}); }
+  refrescar();
+  setInterval(function () { if (!ABIERTO && !document.querySelector('#formNuevo .panel') && document.activeElement.tagName !== 'INPUT') refrescar(); }, 45000);
   enviarCola();
 </script>
 </body>
