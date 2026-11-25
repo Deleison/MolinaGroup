@@ -52,6 +52,12 @@
 
   /* resultados */
   .list { display: flex; flex-direction: column; gap: 8px; }
+  .est { float: right; width: 64px; height: 64px; margin: 0 0 4px 10px; background: #fff; border-radius: 8px; border: 1px solid var(--line); object-fit: contain; }
+  .estpanel { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
+  .estcanvas { width: 100%; height: 340px; background: #fff; border-radius: 8px; border: 1px solid var(--line); overflow: hidden; position: relative; }
+  .estfila { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+  .estfila input { flex: 1 1 180px; min-width: 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--input); color: var(--text); font: inherit; }
+  .estmsg { font-size: 13px; color: var(--muted); margin-top: 6px; }
   .item { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--c, var(--line)); border-radius: 10px; padding: 10px 12px; }
   .cat { display: inline-flex; align-items: center; gap: 6px; color: var(--c); font-weight: 600; }
   .cat::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--c); }
@@ -202,6 +208,18 @@
       <select id="lab"><option value="">Ambos laboratorios</option><option>1-6</option><option>2-1</option></select>
       <select id="cat"><option value="">Todas las categorías</option></select>
       <button id="pres" class="tbtn" type="button" aria-pressed="false" hidden>Historial de préstamos</button>
+      <button id="estBtn" class="tbtn" type="button" aria-pressed="false">Buscar por estructura</button>
+    </div>
+    <div id="estPanel" class="estpanel" hidden>
+      <div class="estcanvas" id="estCanvas"></div>
+      <div class="estfila"><input id="estTxt" placeholder="O escribe un nombre o SMILES" autocomplete="off"><button class="tbtn" type="button" id="estPoner">Dibujar</button></div>
+      <div class="estfila">
+        <button class="tbtn" type="button" data-estmodo="sub" aria-pressed="true">Contiene este fragmento</button>
+        <button class="tbtn" type="button" data-estmodo="exacta" aria-pressed="false">Exacta (ignora sales e hidratos)</button>
+        <button class="tbtn" type="button" data-estmodo="sim" aria-pressed="false">Parecidos</button>
+      </div>
+      <div class="estfila"><button class="bprim" type="button" id="estBuscar">Buscar</button><button class="tbtn" type="button" id="estQuitar" hidden>Quitar filtro de estructura</button></div>
+      <div class="estmsg" id="estMsg"></div>
     </div>
   </div>
 
@@ -469,7 +487,8 @@
 
   function load(res, provisional) {
     LOADED = true;
-    if (res.ghs) for (var c in res.ghs) GHS[c] = res.ghs[c];   // pictogramas ya consultados por el script
+    if (res.ghs) for (var c in res.ghs) GHS[c] = res.ghs[c];
+    if (res.cid) CID = res.cid;   // pictogramas ya consultados por el script
     DATA = agrupar(res.rows);
     indexarPrestamos();
     var frascos = res.rows.length;
@@ -516,7 +535,7 @@
     COLA.length = 0; ENCOLA = {}; VISIBLES = 0;
     actualizarURL(qraw, lab, cat, modo);
     if (!LOADED) { count.textContent = ''; out.innerHTML = '<div class="loading">Cargando inventario…</div>'; return; }
-    if (!qraw && !lab && !cat && !modo) { count.textContent = ''; out.innerHTML = ''; return; }
+    if (!qraw && !lab && !cat && !modo && !FILTRO_EST) { count.textContent = ''; out.innerHTML = ''; return; }
     var q = norm(qraw), qc = compact(qraw);
     var words = q.split(/\s+/).filter(function (w) { return w && !VACIAS[w]; });
     if (!words.length && q) words = q.split(/\s+/).filter(Boolean);
@@ -528,6 +547,7 @@
       if (modo === 'vencidos' && !d.act.some(vencido)) return false;
       if (lab && d.labs.indexOf(lab) < 0) return false;
       if (cat && d.cat !== cat) return false;
+      if (FILTRO_EST && !(d.cas in FILTRO_EST)) return false;
       return vars.every(function (vs) { return vs.some(function (w) { var wc = compact(w); return d.t.indexOf(w) >= 0 || (wc && d.c.indexOf(wc) >= 0); }); });
     });
     if (words.length) res.forEach(function (d) { d.s = puntaje(d, q, qc, words); });
@@ -537,14 +557,14 @@
       var va = a.act.some(vencido) ? 0 : 1, vb = b.act.some(vencido) ? 0 : 1;
       return (va - vb) || (antiguo(a) < antiguo(b) ? -1 : antiguo(a) > antiguo(b) ? 1 : 0);
     };
-    res.sort(function (a, b) { return (words.length ? a.s - b.s : 0) || porPrestamo(a, b) || keyNum(a.k) - keyNum(b.k); });
-    count.textContent = res.length + (res.length === 1 ? ' reactivo' : ' reactivos') + (modo === 'ahora' ? (res.length === 1 ? ' prestado' : ' prestados') : modo === 'vencidos' ? ' con préstamo vencido' : '') + (res.length > MAX ? ' (se muestran los primeros ' + MAX + ')' : '');
-    if (!res.length) { out.innerHTML = '<div class="empty">' + (modo === 'ahora' ? 'No hay reactivos prestados' + (qraw || lab || cat ? ' con estos filtros' : '') + '.' : modo === 'vencidos' ? 'No hay préstamos vencidos.' : 'Sin resultados. Prueba con menos letras o con el CAS.') + '</div>'; return; }
+    res.sort(function (a, b) { return (FILTRO_EST ? FILTRO_EST[b.cas] - FILTRO_EST[a.cas] : 0) || (words.length ? a.s - b.s : 0) || porPrestamo(a, b) || keyNum(a.k) - keyNum(b.k); });
+    count.textContent = res.length + (res.length === 1 ? ' reactivo' : ' reactivos') + (modo === 'ahora' ? (res.length === 1 ? ' prestado' : ' prestados') : modo === 'vencidos' ? ' con préstamo vencido' : '') + (FILTRO_EST ? ' · ' + FILTRO_TXT : '') + (res.length > MAX ? ' (se muestran los primeros ' + MAX + ')' : '');
+    if (!res.length) { out.innerHTML = '<div class="empty">' + (modo === 'ahora' ? 'No hay reactivos prestados' + (qraw || lab || cat ? ' con estos filtros' : '') + '.' : modo === 'vencidos' ? 'No hay préstamos vencidos.' : (FILTRO_EST ? 'Ningún reactivo con estructura registrada coincide. Solo se buscan los que tienen CAS.' : 'Sin resultados. Prueba con menos letras o con el CAS.')) + '</div>'; return; }
     var hw = [].concat.apply([], vars);
     var h = '<div class="list">';
     res.slice(0, MAX).forEach(function (d) {
       var varios = d.labs.length > 1;
-      h += '<div class="item c' + esc(d.cat.charAt(0)) + '" data-gid="' + esc(d.gid) + '"><div class="top"><span class="k">' + hl(d.k, hw) + '</span><span class="n">' + hl(d.n, hw) + '</span>' +
+      h += '<div class="item c' + esc(d.cat.charAt(0)) + '" data-gid="' + esc(d.gid) + '">' + (CID[d.cas] ? '<img class="est" loading="lazy" alt="Estructura" src="https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/' + CID[d.cas] + '/PNG?image_size=160x160">' : '') + '<div class="top"><span class="k">' + hl(d.k, hw) + '</span><span class="n">' + hl(d.n, hw) + '</span>' +
            '<span class="labs">' + d.labs.map(function (l) { return '<span class="tag">' + esc(l) + '</span>'; }).join('') + '</span></div>' +
            '<div class="meta">' + (d.cas ? '<span>CAS <b>' + hl(d.cas, hw) + '</b></span>' : '') + '<span class="cat">' + esc(d.cat.replace(/^[A-E] · /, '')) + '</span>' + (d.abr.length ? '<span class="abr">' + d.abr.map(function (a) { return hl(a, hw); }).join(' · ') + '</span>' : '') + ficha(d) + botonesPrestamo(d) + '</div>' + pictogramas(d) + etiquetasAviso(d) + etiquetasPrestamo(d) +
            '<div class="pres">' + d.pres.map(function (p) {
@@ -558,8 +578,121 @@
     out.innerHTML = h + '</div>';
   }
 
+  // ===== Búsqueda por estructura (OpenChemLib, se descarga solo al abrir el panel) =====
+  var OCL = null, ESTR = null, ESTR_P = null, EDITOR = null, ESTMODO = 'sub';
+  var OCL_URL = 'https://cdn.jsdelivr.net/npm/openchemlib@9.25.1/dist/openchemlib.js';
+  function estMsg(t) { document.getElementById('estMsg').textContent = t; }
+  function abrirEst() {
+    var p = document.getElementById('estPanel'), b = document.getElementById('estBtn');
+    p.hidden = !p.hidden; b.setAttribute('aria-pressed', String(!p.hidden));
+    if (p.hidden || EDITOR) return;
+    estMsg('Cargando el editor de estructuras…');
+    (OCL ? Promise.resolve(OCL) : import(OCL_URL)).then(function (m) {
+      OCL = m;
+      EDITOR = new OCL.CanvasEditor(document.getElementById('estCanvas'), { initialMode: 'molecule' });
+      cargarEstructuras().then(function (L) { estMsg(L.length + ' reactivos con estructura. Dibuja (o escribe un nombre o SMILES) y toca Buscar.'); });
+    }).catch(function () { estMsg('No se pudo cargar el editor. Revisa la conexión e inténtalo de nuevo.'); EDITOR = null; });
+  }
+  function cargarEstructuras() {
+    if (ESTR) return Promise.resolve(ESTR);
+    if (ESTR_P) return ESTR_P;
+    ESTR_P = fetch(API_BASE + '?formato=estructuras', { credentials: 'omit' }).then(function (r) { return r.json(); }).then(function (j) {
+      var sm = j.smiles || {}, cas = Object.keys(sm), cache = {}, L = [];
+      try { cache = JSON.parse(ls('estMG') || '{}'); } catch (e) {}
+      // Lo calculado se guarda en el teléfono: la primera vez tarda unos segundos, después es inmediato
+      return new Promise(function (ok) {
+        var i = 0;
+        (function paso() {
+          var fin = Math.min(i + 60, cas.length);
+          for (; i < fin; i++) {
+            var c = cas[i], x = cache[c];
+            try {
+              if (!x || x[0] !== sm[c]) {
+                var m = OCL.Molecule.fromSmiles(sm[c]), g = m.getCompactCopy();
+                g.stripSmallFragments(false);   // fragmento principal (sin contraiones ni agua)
+                x = cache[c] = [sm[c], m.getIDCode(), OCL.SSSearcherWithIndex.getHexStringFromIndex(m.getIndex()), g.getIDCode(), OCL.SSSearcherWithIndex.getHexStringFromIndex(g.getIndex())];
+              }
+              L.push({ cas: c, idc: x[1], idx: OCL.SSSearcherWithIndex.getIndexFromHexString(x[2]), idL: x[3], idxL: OCL.SSSearcherWithIndex.getIndexFromHexString(x[4]) });
+            } catch (e) {}
+          }
+          if (i < cas.length) { estMsg('Preparando estructuras… ' + Math.round(100 * i / cas.length) + ' %'); setTimeout(paso, 0); return; }
+          var limpio = {}; cas.forEach(function (c) { if (cache[c]) limpio[c] = cache[c]; });
+          ls('estMG', JSON.stringify(limpio));
+          ESTR = L; ok(L);
+        })();
+      });
+    });
+    ESTR_P.catch(function () { ESTR_P = null; });
+    return ESTR_P;
+  }
+  function molDeTexto(t) {
+    t = t.trim();
+    if (!t) return Promise.reject(new Error('vacío'));
+    if (/^[A-Za-z0-9@+\-\[\]\(\)=#$%\\\/\.:*]+$/.test(t) && !/^[A-Za-z][a-z]{3,}$/.test(t)) {
+      try { var m0 = OCL.Molecule.fromSmiles(t); if (m0.getAllAtoms()) return Promise.resolve(m0); } catch (e) {}
+    }
+    var u = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/' + encodeURIComponent(t) + '/property/';
+    var get = function (p) { return pubchemJSON(u + p + '/JSON'); };
+    return get('SMILES').catch(function () { return null; }).then(function (j) { return j || get('IsomericSMILES'); }).then(function (j) {
+      var p = j && j.PropertyTable && j.PropertyTable.Properties && j.PropertyTable.Properties[0];
+      var smi = p && (p.SMILES || p.IsomericSMILES || p.CanonicalSMILES);
+      if (!smi) throw new Error('sin resultado');
+      return OCL.Molecule.fromSmiles(smi);
+    });
+  }
+  function buscarEst() {
+    if (!EDITOR) return;
+    var q = EDITOR.getMolecule();
+    if (!q.getAllAtoms()) { estMsg('Primero dibuja una estructura.'); return; }
+    estMsg('Buscando…');
+    cargarEstructuras().then(function (L) {
+      var res = {}, n = 0;
+      if (ESTMODO === 'sub') {
+        var f = q.getCompactCopy(); f.setFragment(true);
+        var fi = f.getIndex(), ss = new OCL.SSSearcher();
+        ss.setFragment(f);
+        L.forEach(function (e) {
+          for (var k = 0; k < fi.length; k++) if ((fi[k] & e.idx[k]) !== fi[k]) return;
+          ss.setMolecule(e.m || (e.m = OCL.Molecule.fromIDCode(e.idc, false)));
+          if (ss.isFragmentInMolecule()) { res[e.cas] = 1; n++; }
+        });
+        FILTRO_TXT = 'contienen el fragmento dibujado';
+      } else {
+        var g = q.getCompactCopy(); g.stripSmallFragments(false);
+        var id = g.getIDCode(), gi = g.getIndex();
+        L.forEach(function (e) {
+          if (ESTMODO === 'exacta') { if (e.idL === id) { res[e.cas] = 1; n++; } }
+          else { var t = OCL.SSSearcherWithIndex.getSimilarityTanimoto(gi, e.idxL); if (t >= 0.55) { res[e.cas] = t; n++; } }
+        });
+        FILTRO_TXT = ESTMODO === 'exacta' ? 'misma estructura' : 'estructuras parecidas (más parecidas primero)';
+      }
+      FILTRO_EST = res;
+      document.getElementById('estQuitar').hidden = false;
+      estMsg(L.length + ' reactivos tienen estructura registrada; ' + n + ' coinciden. Los que no tienen CAS no se pueden buscar así.');
+      search();
+      document.getElementById('count').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }).catch(function () { estMsg('No se pudieron leer las estructuras. Inténtalo de nuevo.'); });
+  }
+  document.getElementById('estBtn').addEventListener('click', abrirEst);
+  document.getElementById('estBuscar').addEventListener('click', buscarEst);
+  document.getElementById('estQuitar').addEventListener('click', function () { FILTRO_EST = null; this.hidden = true; estMsg(''); search(); });
+  document.getElementById('estPoner').addEventListener('click', function () {
+    if (!EDITOR) return;
+    estMsg('Buscando la estructura…');
+    molDeTexto(document.getElementById('estTxt').value).then(function (m) {
+      m.inventCoordinates(); EDITOR.setMolecule(m); estMsg('Listo. Puedes editarla o tocar Buscar.');
+    }).catch(function () { estMsg('No reconocí ese nombre o SMILES. Prueba en inglés o dibújalo.'); });
+  });
+  document.querySelectorAll('[data-estmodo]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      ESTMODO = b.dataset.estmodo;
+      document.querySelectorAll('[data-estmodo]').forEach(function (x) { x.setAttribute('aria-pressed', String(x === b)); });
+    });
+  });
+
   // ===== Préstamos =====
   var API_BASE = 'https://script.google.com/macros/s/AKfycbzd0u9hGwlOWxvFpax4MNk5qxwiMw7r8cyLlFrZT0tt7KkL9A9VMW5uak-oVY8EWOZM/exec';
+  var CID = {}, FILTRO_EST = null, FILTRO_TXT = '';
   var GHS = {}, AVISOS = [], PREST = [], LABS = [], PREST_OK = false, PIDECLAVE = true, GID = {}, ABIERTO = null, PENDIENTE = false;
   var KEYP = 'prestamosMolinaGroup';
   function ls(k, v) { try { if (v === undefined) return localStorage.getItem(k) || ''; if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) { return ''; } }
